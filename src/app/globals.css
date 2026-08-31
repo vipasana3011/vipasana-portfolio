@@ -1,0 +1,175 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #fff8fa;
+  --bg-secondary: #fff0f5;
+  --bg-card: rgba(255, 255, 255, 0.72);
+  --border-card: rgba(255, 148, 190, 0.25);
+  --border-glow: rgba(255, 77, 136, 0.4);
+  --text-primary: #181116;
+  --text-secondary: #5e4a54;
+  --text-muted: #8c7380;
+  --accent-pink: #ff2e83;
+  --accent-rose: #e8a598;
+  --accent-soft: #ff94be;
+  --accent-gold: #f6d0ba;
+  --shadow-color: rgba(255, 77, 136, 0.12);
+  --glass-specular: rgba(255, 255, 255, 0.9);
+}
+
+.dark {
+  --bg-primary: #0b0609;
+  --bg-secondary: #140a12;
+  --bg-card: rgba(22, 12, 20, 0.65);
+  --border-card: rgba(255, 101, 132, 0.18);
+  --border-glow: rgba(255, 77, 136, 0.55);
+  --text-primary: #fff4f7;
+  --text-secondary: #d4beca;
+  --text-muted: #967d8c;
+  --accent-pink: #ff4d88;
+  --accent-rose: #f6b4a6;
+  --accent-soft: #ff85a2;
+  --accent-gold: #f7d6c4;
+  --shadow-color: rgba(255, 77, 136, 0.25);
+  --glass-specular: rgba(255, 255, 255, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-jakarta), system-ui, sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.4s ease, color 0.4s ease;
+  selection-background-color: var(--accent-pink);
+  selection-color: #ffffff;
+}
+
+::selection {
+  background: rgba(255, 77, 136, 0.3);
+  color: inherit;
+}
+
+/* Custom Luxury Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ff4d88 0%, #e8a598 100%);
+  border-radius: 9999px;
+  border: 2px solid var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff2e83;
+}
+
+/* Luxury Glass Components */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-card);
+  box-shadow: 0 10px 30px -10px var(--shadow-color);
+}
+
+.glass-panel-hover {
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel-hover:hover {
+  border-color: var(--border-glow);
+  box-shadow: 0 20px 45px -10px var(--shadow-color), 0 0 25px rgba(255, 77, 136, 0.2);
+  transform: translateY(-4px);
+}
+
+/* Luxury Gradient Text */
+.gradient-text-rose {
+  background: linear-gradient(135deg, #ff2e83 0%, #e8a598 50%, #ff85a2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.dark .gradient-text-rose {
+  background: linear-gradient(135deg, #ff6584 0%, #f6d0ba 50%, #ffa5b9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gradient-text-gold {
+  background: linear-gradient(135deg, #f6d0ba 0%, #e8a598 50%, #b76e79 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255, 77, 136, 0.6), rgba(232, 165, 152, 0.4), rgba(255, 77, 136, 0.1));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Shimmer Highlight Effect */
+.shimmer-effect {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 4s infinite;
+}
+
+/* 3D Canvas Container */
+.webgl-container {
+  pointer-events: auto;
+  position: relative;
+  z-index: 10;
+}
+
+/* Typing Caret Animation */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.typing-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background-color: var(--accent-pink);
+  margin-left: 4px;
+  vertical-align: middle;
+  animation: blink 0.9s infinite;
+}
