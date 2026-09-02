@@ -7,6 +7,7 @@ import { certificationsList, personalInfo } from '@/data/portfolioData';
 import { Certification } from '@/types';
 import { CertificateModal } from '@/components/ui/CertificateModal';
 import { FloatingCard3D } from '@/components/ui/FloatingCard3D';
+import { trackCertificateClick } from '@/lib/analytics';
 
 export function Certifications() {
   const [selectedCert, setSelectedCert] = useState<Certification | null>(null);
@@ -50,7 +51,10 @@ export function Certifications() {
               delay={idx * 0.1}
               floatOffset={5 + (idx % 3) * 3}
               floatDuration={5 + (idx % 2)}
-              onClick={() => setSelectedCert(cert)}
+              onClick={() => {
+                setSelectedCert(cert);
+                trackCertificateClick(cert.title, cert.issuer, cert.year, 'certifications_grid');
+              }}
               className="group cursor-pointer flex flex-col justify-between"
             >
               <div>

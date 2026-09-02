@@ -6,6 +6,12 @@ import { Mail, Phone, MapPin, Send, CheckCircle2, Sparkles, Github, Linkedin, Me
 import { personalInfo } from '@/data/portfolioData';
 import { VisitorCounter } from '@/components/ui/VisitorCounter';
 import confetti from 'canvas-confetti';
+import {
+  trackContactAction,
+  trackContactFormStart,
+  trackGenerateLead,
+  trackContactFormError,
+} from '@/lib/analytics';
 
 export function Contact() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
@@ -30,6 +36,9 @@ export function Contact() {
         setStatusMessage(data.message || 'Thank you! Your message has been received ✨');
         setForm({ name: '', email: '', message: '' });
 
+        // Track successful lead generation in GA4
+        trackGenerateLead('contact_section_form', true);
+
         // Trigger celebratory confetti
         confetti({
           particleCount: 70,
@@ -44,10 +53,12 @@ export function Contact() {
       } else {
         setStatus('error');
         setStatusMessage(data.message || 'Something went wrong. Please try again or reach out directly.');
+        trackContactFormError('contact_section_form', 'submission_failure');
       }
     } catch {
       setStatus('error');
       setStatusMessage('Failed to send. Please email me directly at ' + personalInfo.contact.email);
+      trackContactFormError('contact_section_form', 'network_error');
     }
   };
 
@@ -96,6 +107,7 @@ export function Contact() {
               {/* Email Card */}
               <a
                 href={`mailto:${personalInfo.contact.email}`}
+                onClick={() => trackContactAction('email', 'contact_card', 'mailto')}
                 className="p-5 sm:p-6 rounded-2xl glass-panel border border-rose-200/50 dark:border-rose-900/40 bg-white/70 dark:bg-noir-850/70 shadow-md hover:shadow-lg hover:border-rose-400/60 transition-all flex items-center gap-4 group"
               >
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-rose-100/80 dark:bg-noir-750/80 text-rose-600 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/60 group-hover:scale-110 transition-transform flex-shrink-0">
@@ -116,6 +128,7 @@ export function Contact() {
                 href={personalInfo.contact.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackContactAction('whatsapp', 'contact_card', 'whatsapp_link')}
                 className="p-5 sm:p-6 rounded-2xl glass-panel border border-rose-200/50 dark:border-rose-900/40 bg-white/70 dark:bg-noir-850/70 shadow-md hover:shadow-lg hover:border-rose-400/60 transition-all flex items-center gap-4 group"
               >
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-rose-100/80 dark:bg-noir-750/80 text-rose-600 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/60 group-hover:scale-110 transition-transform flex-shrink-0">
@@ -155,6 +168,7 @@ export function Contact() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="GitHub Profile"
+                  onClick={() => trackContactAction('github', 'contact_socials', 'external_profile')}
                   className="w-11 h-11 rounded-xl glass-panel border border-rose-200/60 dark:border-rose-800/60 flex items-center justify-center text-neutral-700 dark:text-rose-200 hover:bg-rose-500 hover:text-white dark:hover:bg-rose-500 dark:hover:text-white hover:border-rose-500 transition-all hover:scale-110 shadow-sm"
                 >
                   <Github className="w-5 h-5" />
@@ -165,6 +179,7 @@ export function Contact() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="LinkedIn Profile"
+                  onClick={() => trackContactAction('linkedin', 'contact_socials', 'external_profile')}
                   className="w-11 h-11 rounded-xl glass-panel border border-rose-200/60 dark:border-rose-800/60 flex items-center justify-center text-neutral-700 dark:text-rose-200 hover:bg-rose-500 hover:text-white dark:hover:bg-rose-500 dark:hover:text-white hover:border-rose-500 transition-all hover:scale-110 shadow-sm"
                 >
                   <Linkedin className="w-5 h-5" />
@@ -175,6 +190,7 @@ export function Contact() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="WhatsApp Chat"
+                  onClick={() => trackContactAction('whatsapp', 'contact_socials', 'direct_chat')}
                   className="w-11 h-11 rounded-xl glass-panel border border-rose-200/60 dark:border-rose-800/60 flex items-center justify-center text-neutral-700 dark:text-rose-200 hover:bg-rose-500 hover:text-white dark:hover:bg-rose-500 dark:hover:text-white hover:border-rose-500 transition-all hover:scale-110 shadow-sm"
                 >
                   <MessageCircle className="w-5 h-5" />
@@ -221,6 +237,7 @@ export function Contact() {
                   id="name"
                   required
                   value={form.name}
+                  onFocus={() => trackContactFormStart('contact_section_form')}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="e.g. Eleanor Vance"
                   className="w-full px-4 py-3.5 rounded-xl glass-panel border border-rose-200/60 dark:border-rose-800/60 bg-white/50 dark:bg-noir-900/50 text-neutral-900 dark:text-rose-100 placeholder:text-neutral-400 dark:placeholder:text-rose-300/30 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition-all"
@@ -240,6 +257,7 @@ export function Contact() {
                   id="email"
                   required
                   value={form.email}
+                  onFocus={() => trackContactFormStart('contact_section_form')}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="you@domain.com"
                   className="w-full px-4 py-3.5 rounded-xl glass-panel border border-rose-200/60 dark:border-rose-800/60 bg-white/50 dark:bg-noir-900/50 text-neutral-900 dark:text-rose-100 placeholder:text-neutral-400 dark:placeholder:text-rose-300/30 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition-all"
@@ -259,6 +277,7 @@ export function Contact() {
                   required
                   rows={4}
                   value={form.message}
+                  onFocus={() => trackContactFormStart('contact_section_form')}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
                   placeholder="Tell me about your project, idea, or collaboration..."
                   className="w-full px-4 py-3.5 rounded-xl glass-panel border border-rose-200/60 dark:border-rose-800/60 bg-white/50 dark:bg-noir-900/50 text-neutral-900 dark:text-rose-100 placeholder:text-neutral-400 dark:placeholder:text-rose-300/30 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition-all resize-none"

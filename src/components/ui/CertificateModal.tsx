@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ExternalLink, Award, Sparkles } from 'lucide-react';
 import { Certification } from '@/types';
+import { trackCertificateClick } from '@/lib/analytics';
 
 interface CertificateModalProps {
   cert: Certification | null;
@@ -105,6 +106,9 @@ export function CertificateModal({ cert, onClose }: CertificateModalProps) {
                 href={cert.image}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() =>
+                  trackCertificateClick(cert.title, cert.issuer, cert.year, 'modal_full_view')
+                }
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white shadow-md shadow-rose-500/25 transition-all hover:scale-105 whitespace-nowrap cursor-pointer"
               >
                 <span>Open Full Original</span>

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { projectsList } from '@/data/portfolioData';
 import { ProjectCard3D } from '@/components/ui/ProjectCard3D';
+import { trackProjectCategoryFilter } from '@/lib/analytics';
 
 export function Work() {
   const [filter, setFilter] = useState<'all' | 'web' | 'smm'>('all');
@@ -61,7 +62,10 @@ export function Work() {
             return (
               <button
                 key={tab.value}
-                onClick={() => setFilter(tab.value as any)}
+                onClick={() => {
+                  setFilter(tab.value as any);
+                  trackProjectCategoryFilter(tab.value);
+                }}
                 className={`relative px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 ${
                   isActive
                     ? 'text-white'

@@ -8,6 +8,7 @@ import { ArrowRight, FileDown, Mail, Sparkles, Code2, Palette } from 'lucide-rea
 import { personalInfo } from '@/data/portfolioData';
 import { MagneticButton } from '@/components/ui/MagneticButton';
 import confetti from 'canvas-confetti';
+import { trackNavigationClick, trackCvDownload } from '@/lib/analytics';
 
 // Dynamically import Three.js Hero Glass Sculpture with SSR disabled
 const HeroFluidBlob = dynamic(
@@ -129,6 +130,7 @@ export function Hero() {
               <MagneticButton strength={0.25}>
                 <a
                   href="#work"
+                  onClick={() => trackNavigationClick('work', 'Explore My Work', 'hero')}
                   className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-sm font-bold uppercase tracking-wider bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white shadow-lg shadow-rose-500/30 transition-all hover:scale-105 active:scale-95 group"
                 >
                   <span>Explore My Work</span>
@@ -141,7 +143,10 @@ export function Hero() {
                 <a
                   href={personalInfo.contact.resumeUrl}
                   download="VIPASANA_RESUME.pdf"
-                  onClick={handleDownloadCV}
+                  onClick={() => {
+                    handleDownloadCV();
+                    trackCvDownload('VIPASANA_RESUME.pdf', 'hero', 'Download CV');
+                  }}
                   className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-sm font-bold uppercase tracking-wider p-[1.5px] bg-gradient-to-br from-rose-400/50 via-gold-rosegold/40 to-rose-400/20 hover:from-rose-500 hover:to-gold-rosegold transition-all shadow-md hover:scale-105 active:scale-95"
                 >
                   <div className="px-5 py-3 rounded-full bg-white/80 dark:bg-noir-850/80 backdrop-blur-md flex items-center gap-2 text-rose-600 dark:text-rose-300 font-bold">
@@ -155,6 +160,7 @@ export function Hero() {
               <MagneticButton strength={0.25}>
                 <a
                   href="#contact"
+                  onClick={() => trackNavigationClick('contact', 'Contact Me', 'hero')}
                   className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-sm font-bold uppercase tracking-wider glass-panel border border-neutral-300/70 dark:border-noir-700/70 text-neutral-700 dark:text-rose-200 hover:border-rose-400 dark:hover:border-rose-500 transition-all hover:scale-105 active:scale-95"
                 >
                   <Mail className="w-4 h-4 text-neutral-500 dark:text-rose-300" />

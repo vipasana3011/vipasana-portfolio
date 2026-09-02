@@ -4,6 +4,8 @@ import './globals.css';
 import { CustomCursor } from '@/components/ui/CustomCursor';
 import { Preloader } from '@/components/ui/Preloader';
 import { FloatingBlobsScene } from '@/components/3d/FloatingBlobsScene';
+import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
+import { SectionTracker } from '@/components/analytics/SectionTracker';
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -58,6 +60,8 @@ export default function RootLayout({
       className={`${cormorant.variable} ${jakarta.variable} ${cinzel.variable} scroll-smooth`}
     >
       <body className="relative bg-[#fff8fa] dark:bg-[#0b0609] text-neutral-900 dark:text-[#fff4f7] antialiased selection:bg-rose-500 selection:text-white">
+        <GoogleAnalytics />
+        <SectionTracker />
         <Preloader />
         <CustomCursor />
         <FloatingBlobsScene />

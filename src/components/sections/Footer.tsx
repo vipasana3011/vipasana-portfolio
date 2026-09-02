@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { ArrowUp, Heart } from 'lucide-react';
 import { personalInfo } from '@/data/portfolioData';
 import { MagneticButton } from '@/components/ui/MagneticButton';
+import { trackNavigationClick } from '@/lib/analytics';
 
 export function Footer() {
   const scrollToTop = () => {
+    trackNavigationClick('hero', 'Back to top', 'footer');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

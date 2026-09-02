@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ExternalLink, Sparkles } from 'lucide-react';
 import { Project } from '@/types';
+import { trackProjectClick } from '@/lib/analytics';
 
 interface ProjectCard3DProps {
   project: Project;
@@ -104,6 +105,14 @@ export function ProjectCard3D({ project, index }: ProjectCard3DProps) {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`Open ${project.title}`}
+              onClick={() =>
+                trackProjectClick(
+                  project.title,
+                  project.category === 'web' ? 'Web Development' : 'Social Media',
+                  project.link,
+                  'project_card_button'
+                )
+              }
               className="absolute top-3.5 right-3.5 z-10 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md bg-white/90 dark:bg-noir-900/90 text-rose-600 dark:text-rose-300 border border-rose-300/60 dark:border-rose-700/60 shadow-md hover:bg-rose-500 hover:text-white dark:hover:bg-rose-500 dark:hover:text-white transition-all transform group-hover:scale-110"
             >
               <ExternalLink className="w-4 h-4" />
@@ -141,6 +150,14 @@ export function ProjectCard3D({ project, index }: ProjectCard3DProps) {
                 href={project.link}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() =>
+                  trackProjectClick(
+                    project.title,
+                    project.category === 'web' ? 'Web Development' : 'Social Media',
+                    project.link,
+                    'project_card_link'
+                  )
+                }
                 className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 transition-colors group/link"
               >
                 <span>Explore Live Project</span>

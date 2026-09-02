@@ -123,6 +123,18 @@ export const experienceList: Experience[] = [
 export const projectsList: Project[] = [
   // Web Development Projects
   {
+    id: 'nivala',
+    title: 'Nivala — 3D Food Ordering & Delivery',
+    category: 'web',
+    tag: 'Web Development (Full-Stack)',
+    description:
+      'A full-stack food ordering/delivery website built with Next.js, TypeScript, Tailwind CSS, and Supabase — featuring dynamic menu listings, cart functionality, and user authentication.',
+    image: '/images/nivala.png',
+    link: 'https://nivala-food.vercel.app/',
+    featured: true,
+    technologies: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Supabase'],
+  },
+  {
     id: 'viilora',
     title: 'Viilora — Luxury Skincare FullStack',
     category: 'web',
