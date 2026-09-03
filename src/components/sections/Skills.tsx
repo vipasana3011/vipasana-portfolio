@@ -1,6 +1,6 @@
 'use client';
 
-import { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { skillCategories } from '@/data/portfolioData';
@@ -12,6 +12,9 @@ const Skills = () => {
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const bgRefs = useRef<(HTMLDivElement | null)[]>([]);
   const textRefs = useRef<(HTMLHeadingElement | null)[]>([]);
+  const carouselContainerRef = useRef<HTMLDivElement>(null);
+
+  const [activeMobileIdx, setActiveMobileIdx] = useState(0);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     if (typeof window !== 'undefined' && window.innerWidth >= 769) return;
@@ -31,11 +34,14 @@ const Skills = () => {
       }
     });
 
+    setActiveMobileIdx(activeIdx);
+
     cardsRef.current.forEach((card, i) => {
       if (card) {
         gsap.to(card, {
-          scale: i === activeIdx ? 1 : 0.9,
-          duration: 0.4,
+          scale: i === activeIdx ? 1 : 0.92,
+          opacity: i === activeIdx ? 1 : 0.6,
+          duration: 0.35,
           ease: 'power2.out',
           overwrite: 'auto',
         });
@@ -55,6 +61,7 @@ const Skills = () => {
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
+      // DESKTOP: 3D Cylindrical Arc Carousel (100% UNTOUCHED)
       mm.add('(min-width: 769px)', () => {
         const updateCards = (p: number) => {
           cardsRef.current.forEach((card, i) => {
@@ -115,11 +122,12 @@ const Skills = () => {
         });
       });
 
+      // MOBILE: Fluid Natural Snapping Layout
       mm.add('(max-width: 768px)', () => {
         cardsRef.current.forEach((card, i) => {
           if (card) {
-            gsap.set(card, { clearProps: 'x,y,z,rotation,scale,opacity,position' });
-            gsap.set(card, { scale: i === 0 ? 1 : 0.9 });
+            gsap.set(card, { clearProps: 'x,y,z,rotation,position' });
+            gsap.set(card, { scale: i === 0 ? 1 : 0.92, opacity: i === 0 ? 1 : 0.6 });
           }
         });
 
@@ -140,7 +148,7 @@ const Skills = () => {
     <section
       id="skills"
       ref={sectionRef}
-      className="relative w-full h-screen bg-[#0b0b0b] text-white overflow-hidden flex items-center justify-center md:[perspective:1000px] select-none border-t border-white/5"
+      className="relative w-full min-h-[100svh] md:h-screen bg-[#0b0b0b] text-white overflow-hidden flex flex-col items-center justify-center md:[perspective:1000px] select-none border-t border-white/5 py-20 md:py-0"
     >
       {/* Dynamic Background Vignettes */}
       {skillCategories.map((_, i) => (
@@ -153,7 +161,7 @@ const Skills = () => {
         />
       ))}
 
-      {/* Massive Background Typography with generous letter spacing */}
+      {/* Massive Background Typography */}
       <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
         {skillCategories.map((_, i) => (
           <h1
@@ -172,9 +180,29 @@ const Skills = () => {
         ))}
       </div>
 
+      {/* Mobile-Only Section Header */}
+      <div className="md:hidden relative z-20 px-6 text-center mb-6 flex flex-col items-center space-y-2">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-black/80 backdrop-blur-xl border border-red-600/40 text-[10px] font-mono uppercase tracking-widest text-white shadow-xl">
+          <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping" />
+          <span className="text-red-500 font-bold tracking-wider">TECHNICAL CAPABILITIES</span>
+          <span className="text-white/40">|</span>
+          <span className="tracking-wider">6 DOMAINS</span>
+        </div>
+        <h2 className="text-3xl font-black text-white tracking-[0.06em] leading-tight font-display uppercase">
+          SKILLS &bull;{' '}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-600 to-red-700">
+            EXPERTISE
+          </span>
+        </h2>
+        <p className="text-white/60 text-xs font-light max-w-xs">
+          Swipe horizontally to explore capabilities
+        </p>
+      </div>
+
       {/* Carousel Container */}
       <div
-        className="relative w-full h-full flex md:items-center md:justify-center z-10 md:[transform-style:preserve-3d] overflow-x-auto overflow-y-hidden md:overflow-visible snap-x snap-mandatory scrollbar-hide items-center px-[10vw] md:px-0 gap-4 md:gap-0 touch-pan-x"
+        ref={carouselContainerRef}
+        className="relative w-full h-auto md:h-full flex md:items-center md:justify-center z-10 md:[transform-style:preserve-3d] overflow-x-auto overflow-y-hidden md:overflow-visible snap-x snap-mandatory scrollbar-hide items-center px-[8vw] md:px-0 gap-4 md:gap-0 touch-pan-x py-2"
         onScroll={handleScroll}
       >
         {skillCategories.map((category, i) => (
@@ -183,7 +211,7 @@ const Skills = () => {
             ref={(el) => {
               cardsRef.current[i] = el;
             }}
-            className="md:absolute relative shrink-0 snap-center w-[82vw] sm:w-[360px] md:w-[440px] h-[460px] md:h-[540px] rounded-[32px] p-8 md:p-10 bg-[#141414]/95 backdrop-blur-2xl border border-white/15 flex flex-col justify-between overflow-hidden group shadow-[0_30px_60px_rgba(0,0,0,0.9)] hover:border-red-600/80 transition-colors duration-500"
+            className="md:absolute relative shrink-0 snap-center w-[84vw] sm:w-[360px] md:w-[440px] h-[420px] md:h-[540px] rounded-[28px] md:rounded-[32px] p-6 md:p-10 bg-[#141414]/95 backdrop-blur-2xl border border-white/15 flex flex-col justify-between overflow-hidden group shadow-[0_25px_50px_rgba(0,0,0,0.9)] hover:border-red-600/80 transition-colors duration-500"
           >
             {/* Inner Red Glossy Reflection */}
             <div className="absolute inset-0 bg-gradient-to-tr from-red-600/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20" />
@@ -200,21 +228,21 @@ const Skills = () => {
             </div>
 
             {/* Middle Title & Description with clean letter spacing */}
-            <div className="space-y-4 relative z-10 my-auto">
-              <h3 className="text-3xl md:text-4xl font-black text-white tracking-[0.06em] group-hover:text-red-500 transition-colors duration-300 font-display uppercase leading-tight">
+            <div className="space-y-3 md:space-y-4 relative z-10 my-auto">
+              <h3 className="text-2xl md:text-4xl font-black text-white tracking-[0.06em] group-hover:text-red-500 transition-colors duration-300 font-display uppercase leading-tight">
                 {category.title}
               </h3>
-              <p className="text-sm md:text-base text-white/70 font-light leading-relaxed">
+              <p className="text-xs md:text-base text-white/70 font-light leading-relaxed">
                 {category.desc}
               </p>
             </div>
 
             {/* Bottom Skill Badges */}
-            <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10 relative z-10">
+            <div className="flex flex-wrap gap-1.5 md:gap-2 pt-3 md:pt-4 border-t border-white/10 relative z-10">
               {category.skills.map((skill, sIdx) => (
                 <span
                   key={sIdx}
-                  className="text-xs font-mono text-white/80 bg-white/5 border border-white/10 px-3 py-1 rounded group-hover:border-red-600/30 transition-colors tracking-wide"
+                  className="text-[10px] md:text-xs font-mono text-white/80 bg-white/5 border border-white/10 px-2.5 md:px-3 py-0.5 md:py-1 rounded group-hover:border-red-600/30 transition-colors tracking-wide"
                 >
                   {skill}
                 </span>
@@ -224,6 +252,30 @@ const Skills = () => {
             {/* Bottom Glow Accent */}
             <div className="absolute bottom-4 right-4 w-2 h-2 rounded-full bg-red-600 group-hover:shadow-[0_0_15px_#E50914] transition-all" />
           </div>
+        ))}
+      </div>
+
+      {/* Mobile-Only Pagination Indicator */}
+      <div className="md:hidden relative z-20 flex items-center justify-center gap-1.5 mt-6">
+        {skillCategories.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => {
+              if (carouselContainerRef.current) {
+                const cardWidth = carouselContainerRef.current.offsetWidth * 0.85;
+                carouselContainerRef.current.scrollTo({
+                  left: idx * cardWidth,
+                  behavior: 'smooth',
+                });
+              }
+            }}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              activeMobileIdx === idx
+                ? 'w-6 bg-red-600 shadow-[0_0_10px_#E50914]'
+                : 'w-1.5 bg-white/25 hover:bg-white/50'
+            }`}
+            aria-label={`Go to skill domain ${idx + 1}`}
+          />
         ))}
       </div>
     </section>

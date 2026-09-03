@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Image from 'next/image';
-import { ExternalLink, Play } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { projectsList } from '@/data/portfolioData';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -14,19 +14,29 @@ const Projects = () => {
   const folderBackRef = useRef<HTMLDivElement>(null);
   const folderFrontRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const mobileCardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const mobileCarouselRef = useRef<HTMLDivElement>(null);
 
   const [activeTab, setActiveTab] = useState<'all' | 'web' | 'smm'>('all');
+  const [activeMobileIdx, setActiveMobileIdx] = useState(0);
 
   const filteredProjects = projectsList.filter((project) => {
     if (activeTab === 'all') return true;
     return project.category === activeTab;
   });
 
+  const handleMobileScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const cardWidth = el.offsetWidth * 0.85;
+    const scrollPos = el.scrollLeft;
+    const newIdx = Math.round(scrollPos / cardWidth);
+    if (newIdx >= 0 && newIdx < filteredProjects.length && newIdx !== activeMobileIdx) {
+      setActiveMobileIdx(newIdx);
+    }
+  };
+
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Set initial origins centered in viewport
+      // Set initial origins centered in viewport for desktop
       gsap.set([folderBackRef.current, folderFrontRef.current], {
         xPercent: -50,
         yPercent: -50,
@@ -56,158 +66,82 @@ const Projects = () => {
 
       const mm = gsap.matchMedia();
 
-      mm.add(
-        {
-          isDesktop: '(min-width: 768px)',
-          isMobile: '(max-width: 767px)',
-        },
-        (context) => {
-          const { isDesktop, isMobile } = context.conditions as {
-            isDesktop: boolean;
-            isMobile: boolean;
-          };
+      // DESKTOP: Authentic Netflix Opening Vault & 3D Grid (100% UNTOUCHED)
+      mm.add('(min-width: 768px)', () => {
+        let floatTween: gsap.core.Tween | undefined;
 
-          if (isDesktop) {
-            let floatTween: gsap.core.Tween | undefined;
-
-            const tl = gsap.timeline({
-              scrollTrigger: {
-                trigger: containerRef.current,
-                start: 'top 50%',
-                end: 'bottom 50%',
-                toggleActions: 'play reverse play reverse',
-                onEnter: () => floatTween?.kill(),
-                onEnterBack: () => floatTween?.kill(),
-                onLeave: () => floatTween?.kill(),
-                onLeaveBack: () => floatTween?.kill(),
-              },
-              onComplete: () => {
-                const validCards = cardsRef.current.filter((c): c is HTMLDivElement => c !== null);
-                floatTween = gsap.to(validCards, {
-                  y: '+=12',
-                  rotation: '+=1',
-                  duration: 3.5,
-                  yoyo: true,
-                  repeat: -1,
-                  ease: 'sine.inOut',
-                  stagger: { amount: 1.5, from: 'random' },
-                });
-              },
-            });
-
-            // 1. Folder flap opens
-            tl.to(folderFrontRef.current, {
-              rotationX: -130,
-              duration: 1.2,
-              ease: 'power3.inOut',
-            });
-
-            // 2. Cards rise up collectively
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: 'top 50%',
+            end: 'bottom 50%',
+            toggleActions: 'play reverse play reverse',
+            onEnter: () => floatTween?.kill(),
+            onEnterBack: () => floatTween?.kill(),
+            onLeave: () => floatTween?.kill(),
+            onLeaveBack: () => floatTween?.kill(),
+          },
+          onComplete: () => {
             const validCards = cardsRef.current.filter((c): c is HTMLDivElement => c !== null);
-            tl.to(
-              validCards,
-              {
-                y: -140,
-                scale: 0.9,
-                zIndex: 70,
-                duration: 0.6,
-                stagger: 0.04,
-                ease: 'back.out(1.2)',
-              },
-              '-=0.6'
-            );
-
-            // 3. Cards fan out into a clean grid
-            tl.to(
-              validCards,
-              {
-                x: (i) => {
-                  const w = 360;
-                  const gap = 36;
-                  const { col } = getGridPos(i);
-                  return (col - 1) * (w + gap);
-                },
-                y: (i) => {
-                  const h = 250;
-                  const gap = 36;
-                  const { row } = getGridPos(i);
-                  return (row - 1) * (h + gap);
-                },
-                rotation: () => gsap.utils.random(-2.5, 2.5),
-                scale: 1,
-                duration: 1.4,
-                stagger: { amount: 0.4, from: 'center' },
-                ease: 'expo.out',
-              },
-              '-=0.2'
-            );
-          }
-
-          if (isMobile) {
-            const cardW = window.innerWidth * 0.8;
-            const gap = 20;
-
-            mobileCardsRef.current.forEach((card, i) => {
-              if (!card) return;
-              gsap.set(card, {
-                x: -(i * (cardW + gap)),
-                y: 0,
-                scale: 0.4,
-                opacity: 0,
-                rotation: gsap.utils.random(-15, 15),
-              });
+            floatTween = gsap.to(validCards, {
+              y: '+=12',
+              rotation: '+=1',
+              duration: 3.5,
+              yoyo: true,
+              repeat: -1,
+              ease: 'sine.inOut',
+              stagger: { amount: 1.5, from: 'random' },
             });
+          },
+        });
 
-            const tl = gsap.timeline({
-              scrollTrigger: {
-                trigger: containerRef.current,
-                start: 'top 60%',
-              },
-            });
+        // 1. Folder flap opens
+        tl.to(folderFrontRef.current, {
+          rotationX: -130,
+          duration: 1.2,
+          ease: 'power3.inOut',
+        });
 
-            tl.to(folderFrontRef.current, {
-              rotationX: -130,
-              duration: 0.8,
-              ease: 'power3.inOut',
-            });
+        // 2. Cards rise up collectively
+        const validCards = cardsRef.current.filter((c): c is HTMLDivElement => c !== null);
+        tl.to(
+          validCards,
+          {
+            y: -140,
+            scale: 0.9,
+            zIndex: 70,
+            duration: 0.6,
+            stagger: 0.04,
+            ease: 'back.out(1.2)',
+          },
+          '-=0.6'
+        );
 
-            const validMobCards = mobileCardsRef.current.filter((c): c is HTMLDivElement => c !== null);
-            tl.to(
-              validMobCards,
-              {
-                y: -100,
-                opacity: 1,
-                scale: 0.85,
-                duration: 0.6,
-                stagger: 0.05,
-                ease: 'back.out(1.2)',
-              },
-              '-=0.4'
-            );
-
-            tl.to(
-              validMobCards,
-              {
-                x: 0,
-                y: 0,
-                rotation: 0,
-                scale: (i) => (i === 0 ? 1 : 0.92),
-                opacity: (i) => (i === 0 ? 1 : 0.5),
-                duration: 0.8,
-                stagger: 0.08,
-                ease: 'expo.out',
-                onComplete: () => {
-                  if (mobileCarouselRef.current) {
-                    mobileCarouselRef.current.style.overflowX = 'auto';
-                    mobileCarouselRef.current.style.pointerEvents = 'auto';
-                  }
-                },
-              },
-              '-=0.2'
-            );
-          }
-        }
-      );
+        // 3. Cards fan out into a clean grid
+        tl.to(
+          validCards,
+          {
+            x: (i) => {
+              const w = 360;
+              const gap = 36;
+              const { col } = getGridPos(i);
+              return (col - 1) * (w + gap);
+            },
+            y: (i) => {
+              const h = 250;
+              const gap = 36;
+              const { row } = getGridPos(i);
+              return (row - 1) * (h + gap);
+            },
+            rotation: () => gsap.utils.random(-2.5, 2.5),
+            scale: 1,
+            duration: 1.4,
+            stagger: { amount: 0.4, from: 'center' },
+            ease: 'expo.out',
+          },
+          '-=0.2'
+        );
+      });
     }, containerRef);
 
     return () => ctx.revert();
@@ -217,7 +151,7 @@ const Projects = () => {
     <section
       id="projects"
       ref={containerRef}
-      className="bg-[#0b0b0b] min-h-[100svh] md:min-h-[220vh] relative font-sans overflow-x-clip text-white w-full flex flex-col items-center justify-start py-28 md:py-36 select-none border-t border-white/5"
+      className="bg-[#0b0b0b] min-h-[100svh] md:min-h-[220vh] relative font-sans overflow-x-clip text-white w-full flex flex-col items-center justify-start py-20 md:py-36 select-none border-t border-white/5"
     >
       {/* Background Watermark */}
       <div className="absolute top-10 left-0 w-full flex items-start justify-center pointer-events-none z-0">
@@ -229,26 +163,28 @@ const Projects = () => {
       {/* Ambient Crimson Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[55vw] h-[55vw] bg-red-600/15 rounded-full blur-[160px] pointer-events-none z-0" />
 
-      {/* Section Header & Filter Controls */}
-      <div className="relative z-20 max-w-7xl mx-auto px-6 md:px-12 w-full text-center flex flex-col items-center space-y-4 mb-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-black/80 backdrop-blur-xl border border-red-600/40 text-[11px] font-mono uppercase tracking-widest text-white shadow-xl">
+      {/* Section Header & Filter Controls - Normal Natural Flow */}
+      <div className="relative z-20 max-w-7xl mx-auto px-6 md:px-12 w-full text-center flex flex-col items-center space-y-3 md:space-y-4 mb-4 md:mb-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-black/80 backdrop-blur-xl border border-red-600/40 text-[10px] md:text-[11px] font-mono uppercase tracking-widest text-white shadow-xl">
           <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping" />
           <span className="text-red-500 font-bold tracking-wider">FEATURED WORKS</span>
           <span className="text-white/40">|</span>
           <span className="tracking-wider">SELECTED PROJECTS</span>
         </div>
+
         <h2 className="text-3xl md:text-5xl font-black text-white tracking-[0.06em] md:tracking-[0.08em] leading-tight font-display uppercase">
           FEATURED RELEASES &bull;{' '}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-600 to-red-700 drop-shadow-[0_0_25px_rgba(229,9,20,0.35)]">
             PROJECT VAULT
           </span>
         </h2>
-        <p className="text-white/60 text-xs md:text-sm font-light max-w-xl">
-          Scroll down to open the vault and explore real-world web applications and social media campaigns.
+
+        <p className="text-white/60 text-xs md:text-sm font-light max-w-xl px-2">
+          Explore real-world web applications and social media growth campaigns.
         </p>
 
-        {/* Filter Pills */}
-        <div className="flex items-center gap-2 pt-2">
+        {/* Filter Pills - Horizontal Scroll on Mobile if needed */}
+        <div className="flex items-center gap-2 pt-1 overflow-x-auto max-w-full scrollbar-hide py-1">
           {(
             [
               { id: 'all', label: 'All Releases (10)' },
@@ -258,8 +194,14 @@ const Projects = () => {
           ).map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-1.5 rounded-full text-xs font-mono tracking-wider transition-all duration-300 ${
+              onClick={() => {
+                setActiveTab(tab.id);
+                setActiveMobileIdx(0);
+                if (mobileCarouselRef.current) {
+                  mobileCarouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+                }
+              }}
+              className={`px-3.5 md:px-4 py-1.5 rounded-full text-[11px] md:text-xs font-mono tracking-wider transition-all duration-300 whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'bg-red-600 text-white font-bold shadow-[0_0_15px_rgba(229,9,20,0.6)] scale-105'
                   : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10 border border-white/10'
@@ -271,8 +213,10 @@ const Projects = () => {
         </div>
       </div>
 
-      {/* Main Perspective Container */}
-      <div className="mt-16 md:mt-24 relative w-full max-w-7xl h-full flex items-center justify-center perspective-[2000px] z-10 flex-1">
+      {/* ========================================================================= */}
+      {/* DESKTOP VIEW: 3D Animated Vault & Opening Folder Grid (HIDDEN ON MOBILE) */}
+      {/* ========================================================================= */}
+      <div className="hidden md:flex mt-16 md:mt-24 relative w-full max-w-7xl h-full items-center justify-center perspective-[2000px] z-10 flex-1">
         {/* Origin Container */}
         <div className="relative w-0 h-0 transform-style-3d">
           {/* Projects Cover Folder Back */}
@@ -282,7 +226,7 @@ const Projects = () => {
             style={{ zIndex: 5 }}
           >
             <div className="absolute -top-6 left-6 w-32 h-8 bg-[#1f1f1f] rounded-t-xl border-t border-red-600/30" />
-            
+
             {/* Folder Cover Image Montage Preview */}
             <div className="absolute inset-1.5 rounded-[20px] overflow-hidden bg-black/90 p-4 flex flex-col justify-between border border-white/10">
               <div className="flex items-center justify-between z-10">
@@ -341,8 +285,7 @@ const Projects = () => {
                 style={{ zIndex: 10 + i }}
               >
                 <div className="w-full h-full rounded-[22px] overflow-hidden border border-white/20 bg-[#121214] shadow-[0_20px_50px_rgba(0,0,0,0.95)] transition-all duration-500 group hover:scale-[1.05] hover:border-red-600 hover:shadow-[0_25px_60px_rgba(229,9,20,0.45)] hover:-translate-y-2 relative z-10 flex flex-col justify-between">
-                  
-                  {/* 1. Vibrant Cover Image */}
+                  {/* Vibrant Cover Image */}
                   <div className="absolute inset-0 z-0 overflow-hidden">
                     <Image
                       src={project.image}
@@ -351,11 +294,10 @@ const Projects = () => {
                       sizes="360px"
                       className="object-cover object-top filter brightness-[0.92] group-hover:brightness-105 group-hover:scale-108 transition-all duration-700"
                     />
-                    {/* Cinematic Bottom Dark Scrim Gradient */}
                     <div className="absolute inset-0 bg-gradient-to-t from-[#08080a] via-[#08080a]/80 via-45% to-black/20" />
                   </div>
 
-                  {/* 2. Top Badges: Project Number & Live Status */}
+                  {/* Top Badges */}
                   <div className="flex items-center justify-between relative z-10 p-4">
                     <div className="flex items-center gap-2">
                       <span className="text-[9px] font-mono font-black tracking-[0.16em] uppercase text-white bg-red-600 px-2.5 py-0.5 rounded shadow-lg">
@@ -377,14 +319,14 @@ const Projects = () => {
                     </div>
                   </div>
 
-                  {/* 3. Center Hover Play Icon */}
+                  {/* Center Hover Play Icon */}
                   <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
                     <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.6)]">
                       <Play className="w-5 h-5 fill-current ml-0.5" />
                     </div>
                   </div>
 
-                  {/* 4. Bottom Title & Information */}
+                  {/* Bottom Title & Information */}
                   <div className="relative z-10 p-4 pt-0 space-y-1.5">
                     <div>
                       <div className="text-[10px] font-mono uppercase tracking-[0.14em] text-red-400 font-bold drop-shadow">
@@ -453,65 +395,85 @@ const Projects = () => {
         </div>
       </div>
 
-      {/* Mobile Swipeable Carousel */}
-      <div
-        ref={mobileCarouselRef}
-        className="md:hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-screen h-auto py-12 flex items-center gap-6 px-[12.5vw] pointer-events-none z-[100] snap-x snap-mandatory overflow-x-hidden scrollbar-hide"
-      >
-        {filteredProjects.map((project, i) => (
-          <div
-            key={`mob-${project.id}`}
-            ref={(el) => {
-              mobileCardsRef.current[i] = el;
-            }}
-            className="shrink-0 w-[78vw] aspect-[16/11] snap-center will-change-transform relative z-10"
-          >
-            <div className="w-full h-full rounded-[22px] overflow-hidden border border-white/20 bg-[#121214] shadow-[0_20px_40px_rgba(0,0,0,0.95)] flex flex-col justify-between relative p-5">
-              {/* Mobile Cover Image */}
+      {/* ========================================================================= */}
+      {/* MOBILE VIEW: Dedicated, Fluid, Responsive Touch Carousel (MOBILE-ONLY)   */}
+      {/* ========================================================================= */}
+      <div className="md:hidden relative z-20 w-full mt-4 px-4 flex flex-col items-center">
+        {/* Mobile Swipe Status Bar */}
+        <div className="flex items-center justify-between w-full max-w-[340px] px-1 mb-2 text-[10px] font-mono text-white/50">
+          <span className="text-red-500 font-bold uppercase tracking-wider">
+            {filteredProjects.length} RELEASES
+          </span>
+          <span className="text-white/40 tracking-wider">
+            [ 0{activeMobileIdx + 1} / 0{filteredProjects.length} ] &bull; SWIPE &rarr;
+          </span>
+        </div>
+
+        {/* Swipeable Cards Row with Snap Alignment */}
+        <div
+          ref={mobileCarouselRef}
+          onScroll={handleMobileScroll}
+          className="w-full flex items-center gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide py-2 px-[6vw] touch-pan-x"
+        >
+          {filteredProjects.map((project, i) => (
+            <div
+              key={`mob-${project.id}`}
+              className="shrink-0 w-[84vw] max-w-[340px] aspect-[16/11] snap-center relative rounded-2xl overflow-hidden border border-white/20 bg-[#121214] shadow-[0_15px_35px_rgba(0,0,0,0.95)] flex flex-col justify-between p-4"
+            >
+              {/* Full-bleed Cover Image */}
               <div className="absolute inset-0 z-0 overflow-hidden">
                 <Image
                   src={project.image}
                   alt={project.title}
                   fill
-                  sizes="320px"
+                  sizes="340px"
+                  priority={i < 2}
                   className="object-cover object-top filter brightness-[0.92]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#08080a] via-[#08080a]/80 via-45% to-black/20" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#08080a] via-[#08080a]/85 via-50% to-black/20" />
               </div>
 
               {/* Mobile Card Top Row */}
               <div className="flex items-center justify-between relative z-10">
                 <div className="flex items-center gap-2">
-                  <span className="text-[9px] font-mono font-black tracking-[0.16em] text-white bg-red-600 px-2 py-0.5 rounded">
+                  <span className="text-[9px] font-mono font-black tracking-[0.16em] text-white bg-red-600 px-2 py-0.5 rounded shadow">
                     {project.indexNum || `#0${i + 1}`}
                   </span>
-                  <span className="text-[9px] font-mono text-emerald-400 bg-black/60 px-1.5 py-0.5 rounded border border-emerald-500/30">
+                  <span className="inline-flex items-center gap-1 text-[9px] font-mono text-emerald-400 bg-black/60 px-1.5 py-0.5 rounded border border-emerald-500/30">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     LIVE
                   </span>
                 </div>
-                <span className="text-xs font-mono text-emerald-400 font-bold tracking-wider">
-                  {project.match || '99%'} Match
-                </span>
+                <div className="flex items-center gap-1.5 bg-black/60 px-2 py-0.5 rounded border border-white/20">
+                  <span className="text-xs font-mono text-emerald-400 font-bold">
+                    {project.match || '99%'} Match
+                  </span>
+                  <span className="text-[9px] font-mono text-white/70 border border-white/30 px-1 rounded">
+                    HD
+                  </span>
+                </div>
               </div>
 
               {/* Mobile Card Bottom Row */}
-              <div className="relative z-10 space-y-1.5">
-                <div className="text-[9px] font-mono uppercase tracking-[0.14em] text-red-400 font-bold">
-                  {project.tag}
+              <div className="relative z-10 space-y-1">
+                <div>
+                  <div className="text-[9px] font-mono uppercase tracking-[0.14em] text-red-400 font-bold drop-shadow">
+                    {project.tag}
+                  </div>
+                  <h3 className="text-base font-black text-white line-clamp-1 tracking-wide drop-shadow">
+                    {project.title}
+                  </h3>
+                  <p className="text-[11px] text-white/75 font-light line-clamp-2 leading-snug drop-shadow">
+                    {project.description}
+                  </p>
                 </div>
-                <h3 className="text-base font-black text-white line-clamp-1 tracking-wide">
-                  {project.title}
-                </h3>
-                <p className="text-[11px] text-white/75 font-light line-clamp-2">
-                  {project.description}
-                </p>
 
                 <div className="flex items-center justify-between pt-2 border-t border-white/15">
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-1 max-w-[180px]">
                     {project.technologies.slice(0, 2).map((tag, tIdx) => (
                       <span
                         key={tIdx}
-                        className="text-[9px] font-mono text-white/80 bg-black/60 px-1.5 py-0.5 rounded"
+                        className="text-[9px] font-mono text-white/85 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded border border-white/10"
                       >
                         {tag}
                       </span>
@@ -521,7 +483,7 @@ const Projects = () => {
                     href={project.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 py-1 rounded bg-red-600 text-white font-mono text-[10px] font-bold tracking-wider flex items-center gap-1 shadow-md"
+                    className="px-3.5 py-1 rounded bg-white text-black font-mono text-[10px] font-bold tracking-wider flex items-center gap-1 shadow-md active:scale-95 transition-all"
                   >
                     <Play className="w-3 h-3 fill-current" />
                     Launch
@@ -529,8 +491,33 @@ const Projects = () => {
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        {/* Mobile Pagination Indicator Dots */}
+        <div className="flex items-center justify-center gap-1.5 mt-3">
+          {filteredProjects.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                setActiveMobileIdx(idx);
+                if (mobileCarouselRef.current) {
+                  const cardWidth = mobileCarouselRef.current.offsetWidth * 0.85;
+                  mobileCarouselRef.current.scrollTo({
+                    left: idx * cardWidth,
+                    behavior: 'smooth',
+                  });
+                }
+              }}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                activeMobileIdx === idx
+                  ? 'w-6 bg-red-600 shadow-[0_0_10px_#E50914]'
+                  : 'w-1.5 bg-white/25 hover:bg-white/50'
+              }`}
+              aria-label={`Go to project ${idx + 1}`}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
