@@ -44,6 +44,7 @@ export const personalInfo = {
     whatsapp: 'https://wa.me/918239017449',
     resumeUrl: '/images/VIPA_RESUME.pdf',
     portrait: '/images/vipaabout.jpg',
+    website: 'https://vipasana.me/',
   },
   stats: [
     { label: 'Internships Completed', value: '3+' },

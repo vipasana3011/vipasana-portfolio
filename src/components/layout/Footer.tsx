@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Github, Linkedin, Mail, MessageCircle, FileText } from 'lucide-react';
+import { Github, Linkedin, Mail, MessageCircle, FileText, Globe } from 'lucide-react';
 import { personalInfo } from '@/data/portfolioData';
 
 const Footer = () => {
@@ -20,6 +20,20 @@ const Footer = () => {
             <p className="text-xs font-mono text-white/50 tracking-[0.16em] uppercase">
               DIGITAL MEDIA SPECIALIST &bull; WEB DEVELOPER &bull; 2026
             </p>
+
+            {/* Custom Domain Badge Link */}
+            <a
+              href={personalInfo.contact.website || 'https://vipasana.me/'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs font-mono text-red-500 hover:text-red-400 font-bold tracking-wider transition-colors pt-1"
+            >
+              <Globe className="w-3.5 h-3.5" />
+              <span>vipasana.me</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-red-600/15 border border-red-600/30 text-red-400 uppercase font-mono">
+                Official Website
+              </span>
+            </a>
           </div>
 
           {/* Quick Navigation Links */}
@@ -38,6 +52,17 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           {/* Social Icons instead of text */}
           <div className="flex items-center gap-3">
+            {/* Custom Website Button */}
+            <a
+              href={personalInfo.contact.website || 'https://vipasana.me/'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-3 rounded-xl bg-red-600/10 border border-red-600/40 hover:border-red-600 hover:bg-red-600/25 text-red-500 hover:text-red-400 transition-all duration-300 hover:scale-110 shadow-[0_0_15px_rgba(229,9,20,0.2)]"
+              title="Official Website (vipasana.me)"
+              aria-label="Official Website"
+            >
+              <Globe className="w-5 h-5" />
+            </a>
             <a
               href={personalInfo.contact.github}
               target="_blank"
@@ -96,7 +121,7 @@ const Footer = () => {
 
         {/* Bottom Copyright */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-6 border-t border-white/5 text-[11px] font-mono text-white/40 uppercase tracking-[0.16em]">
-          <p>&copy; {new Date().getFullYear()} Vipasana. All Rights Reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Vipasana &bull; vipasana.me. All Rights Reserved.</p>
           <p className="text-red-500/80">DESIGNED &bull; DEVELOPED &bull; DELIVERED</p>
         </div>
       </div>

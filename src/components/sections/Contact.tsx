@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, CheckCircle2, MessageCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle2, MessageCircle, Globe } from 'lucide-react';
 import { personalInfo } from '@/data/portfolioData';
 
 const Contact = () => {
@@ -100,7 +100,27 @@ const Contact = () => {
           </div>
 
           {/* Direct Communication Channels Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12 pb-8 border-b border-white/10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-12 pb-8 border-b border-white/10">
+            <a
+              href={personalInfo.contact.website || 'https://vipasana.me/'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-4 rounded-2xl bg-white/[0.03] border border-red-600/30 hover:border-red-600 hover:bg-white/[0.06] transition-all flex items-center gap-3 group/link shadow-[0_0_15px_rgba(229,9,20,0.1)] hover:shadow-[0_0_20px_rgba(229,9,20,0.3)]"
+            >
+              <div className="p-2.5 rounded-xl bg-red-600/20 text-red-500 border border-red-600/40 group-hover/link:bg-red-600 group-hover/link:text-white transition-colors">
+                <Globe className="w-4 h-4" />
+              </div>
+              <div className="overflow-hidden">
+                <div className="text-[10px] font-mono uppercase tracking-wider text-red-400 font-bold flex items-center gap-1.5">
+                  <span>Website</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                </div>
+                <div className="text-xs font-black text-white truncate group-hover/link:text-red-400 transition-colors">
+                  vipasana.me
+                </div>
+              </div>
+            </a>
+
             <a
               href={`mailto:${personalInfo.contact.email}`}
               className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-red-600/50 hover:bg-white/[0.06] transition-all flex items-center gap-3"
