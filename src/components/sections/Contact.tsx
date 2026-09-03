@@ -1,329 +1,254 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, CheckCircle2, Sparkles, Github, Linkedin, MessageCircle } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { Mail, Phone, MapPin, Send, CheckCircle2, MessageCircle } from 'lucide-react';
 import { personalInfo } from '@/data/portfolioData';
-import { VisitorCounter } from '@/components/ui/VisitorCounter';
-import confetti from 'canvas-confetti';
-import {
-  trackContactAction,
-  trackContactFormStart,
-  trackGenerateLead,
-  trackContactFormError,
-} from '@/lib/analytics';
 
-export function Contact() {
-  const [form, setForm] = useState({ name: '', email: '', message: '' });
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [statusMessage, setStatusMessage] = useState('');
+const Contact = () => {
+  const ref = useRef<HTMLElement>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    message: '',
+    permission: false,
+  });
+
+  const [submitted, setSubmitted] = useState(false);
+
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], ['-10%', '20%']);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { id, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+    setFormData((prev) => ({
+      ...prev,
+      [id]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus('loading');
 
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        setStatus('success');
-        setStatusMessage(data.message || 'Thank you! Your message has been received ✨');
-        setForm({ name: '', email: '', message: '' });
-
-        // Track successful lead generation in GA4
-        trackGenerateLead('contact_section_form', true);
-
-        // Trigger celebratory confetti
-        confetti({
-          particleCount: 70,
-          spread: 70,
-          origin: { y: 0.7 },
-          colors: ['#ff4d88', '#e8a598', '#ffd6e7', '#f6d0ba'],
-        });
-
-        setTimeout(() => {
-          setStatus('idle');
-        }, 6000);
-      } else {
-        setStatus('error');
-        setStatusMessage(data.message || 'Something went wrong. Please try again or reach out directly.');
-        trackContactFormError('contact_section_form', 'submission_failure');
-      }
-    } catch {
-      setStatus('error');
-      setStatusMessage('Failed to send. Please email me directly at ' + personalInfo.contact.email);
-      trackContactFormError('contact_section_form', 'network_error');
+    if (!formData.permission) {
+      alert('Please check the permission box to proceed.');
+      return;
     }
+
+    setSubmitted(true);
+    setTimeout(() => {
+      setSubmitted(false);
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        message: '',
+        permission: false,
+      });
+    }, 4000);
   };
 
   return (
-    <section id="contact" className="py-24 sm:py-32 relative z-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        
-        {/* Section Header */}
-        <div className="flex flex-col items-center text-center mb-16 sm:mb-20">
-          <motion.span
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-xs sm:text-sm uppercase tracking-[0.25em] text-rose-600 dark:text-rose-400 font-semibold mb-3"
-          >
-            Contact
-          </motion.span>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-neutral-900 dark:text-rose-50 mb-3"
-          >
-            Let&apos;s create{' '}
-            <span className="gradient-text-rose italic font-serif">
-              together
+    <section
+      ref={ref}
+      id="contact"
+      className="bg-[#0b0b0b] w-full min-h-screen relative overflow-hidden flex items-end pt-32 pb-0 border-t border-white/10 select-none"
+    >
+      {/* Background Cinematic Red Ambient Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-600/15 rounded-full blur-[160px] pointer-events-none z-0" />
+
+      {/* Huge Background Parallax Watermark Text with generous letter spacing */}
+      <motion.div
+        style={{ y }}
+        className="absolute top-0 left-0 w-full h-full flex flex-col justify-start items-center overflow-hidden pointer-events-none z-0 pt-16 md:pt-12 opacity-10"
+      >
+        <h1 className="text-[25vw] leading-[0.75] font-black text-red-600 uppercase tracking-[0.14em] select-none scale-y-[1.6] origin-top font-display">
+          CONTACT
+        </h1>
+      </motion.div>
+
+      {/* Form Card Overlay */}
+      <div className="relative z-10 w-full flex justify-end items-end">
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-100px' }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+          className="bg-[#141414]/95 backdrop-blur-2xl border-t border-l border-white/15 w-full md:w-[92%] lg:w-[86%] p-8 md:p-16 text-white flex flex-col justify-between rounded-tl-[3rem] shadow-[0_-25px_60px_rgba(0,0,0,0.9)] relative overflow-hidden"
+        >
+          {/* Internal Top Crimson Highlight Glow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent opacity-90" />
+
+          {/* Section Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 md:mb-14">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded bg-red-600/10 border border-red-600/30 text-xs font-mono uppercase tracking-[0.16em] text-red-500 w-fit font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping" />
+              <span>CONTACT ME // GET IN TOUCH</span>
+            </div>
+            <span className="text-xs font-mono text-white/40 tracking-[0.14em]">
+              // READY TO BUILD YOUR NEXT BIG DIGITAL PROJECT
             </span>
-          </motion.h2>
-          <p className="text-neutral-600 dark:text-rose-200/70 text-sm sm:text-base max-w-md">
-            I&apos;m always open to creative collaborations, internships and meaningful conversations.
-          </p>
-        </div>
+          </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 max-w-6xl mx-auto">
-          
-          {/* Left Column: Direct Reach-out Channels */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="lg:col-span-5 flex flex-col justify-between gap-8"
-          >
-            <div className="flex flex-col gap-4">
-              {/* Email Card */}
-              <a
-                href={`mailto:${personalInfo.contact.email}`}
-                onClick={() => trackContactAction('email', 'contact_card', 'mailto')}
-                className="p-5 sm:p-6 rounded-2xl glass-panel border border-rose-200/50 dark:border-rose-900/40 bg-white/70 dark:bg-noir-850/70 shadow-md hover:shadow-lg hover:border-rose-400/60 transition-all flex items-center gap-4 group"
-              >
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-rose-100/80 dark:bg-noir-750/80 text-rose-600 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/60 group-hover:scale-110 transition-transform flex-shrink-0">
-                  <Mail className="w-5 h-5" />
-                </div>
-                <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-rose-500">
-                    EMAIL
-                  </span>
-                  <p className="text-sm sm:text-base font-semibold text-neutral-800 dark:text-rose-100 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">
-                    {personalInfo.contact.email}
-                  </p>
-                </div>
-              </a>
-
-              {/* WhatsApp Card */}
-              <a
-                href={personalInfo.contact.whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackContactAction('whatsapp', 'contact_card', 'whatsapp_link')}
-                className="p-5 sm:p-6 rounded-2xl glass-panel border border-rose-200/50 dark:border-rose-900/40 bg-white/70 dark:bg-noir-850/70 shadow-md hover:shadow-lg hover:border-rose-400/60 transition-all flex items-center gap-4 group"
-              >
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-rose-100/80 dark:bg-noir-750/80 text-rose-600 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/60 group-hover:scale-110 transition-transform flex-shrink-0">
-                  <Phone className="w-5 h-5" />
-                </div>
-                <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-rose-500">
-                    WHATSAPP & PHONE
-                  </span>
-                  <p className="text-sm sm:text-base font-semibold text-neutral-800 dark:text-rose-100 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">
-                    {personalInfo.contact.phone}
-                  </p>
-                </div>
-              </a>
-
-              {/* Location Card */}
-              <div className="p-5 sm:p-6 rounded-2xl glass-panel border border-rose-200/50 dark:border-rose-900/40 bg-white/70 dark:bg-noir-850/70 shadow-md flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-rose-100/80 dark:bg-noir-750/80 text-rose-600 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/60 flex-shrink-0">
-                  <MapPin className="w-5 h-5" />
-                </div>
-                <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-rose-500">
-                    LOCATION
-                  </span>
-                  <p className="text-sm sm:text-base font-semibold text-neutral-800 dark:text-rose-100">
-                    {personalInfo.contact.location}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Social Icons & Visitor Counter */}
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-3">
-                <a
-                  href={personalInfo.contact.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="GitHub Profile"
-                  onClick={() => trackContactAction('github', 'contact_socials', 'external_profile')}
-                  className="w-11 h-11 rounded-xl glass-panel border border-rose-200/60 dark:border-rose-800/60 flex items-center justify-center text-neutral-700 dark:text-rose-200 hover:bg-rose-500 hover:text-white dark:hover:bg-rose-500 dark:hover:text-white hover:border-rose-500 transition-all hover:scale-110 shadow-sm"
-                >
-                  <Github className="w-5 h-5" />
-                </a>
-
-                <a
-                  href={personalInfo.contact.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="LinkedIn Profile"
-                  onClick={() => trackContactAction('linkedin', 'contact_socials', 'external_profile')}
-                  className="w-11 h-11 rounded-xl glass-panel border border-rose-200/60 dark:border-rose-800/60 flex items-center justify-center text-neutral-700 dark:text-rose-200 hover:bg-rose-500 hover:text-white dark:hover:bg-rose-500 dark:hover:text-white hover:border-rose-500 transition-all hover:scale-110 shadow-sm"
-                >
-                  <Linkedin className="w-5 h-5" />
-                </a>
-
-                <a
-                  href={personalInfo.contact.whatsapp}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="WhatsApp Chat"
-                  onClick={() => trackContactAction('whatsapp', 'contact_socials', 'direct_chat')}
-                  className="w-11 h-11 rounded-xl glass-panel border border-rose-200/60 dark:border-rose-800/60 flex items-center justify-center text-neutral-700 dark:text-rose-200 hover:bg-rose-500 hover:text-white dark:hover:bg-rose-500 dark:hover:text-white hover:border-rose-500 transition-all hover:scale-110 shadow-sm"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                </a>
-              </div>
-
-              <div>
-                <VisitorCounter />
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Right Column: Supabase Powered Contact Form */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="lg:col-span-7"
-          >
-            <form
-              onSubmit={handleSubmit}
-              className="p-8 sm:p-10 rounded-3xl glass-panel border border-rose-200/50 dark:border-rose-900/40 bg-white/80 dark:bg-noir-850/80 shadow-xl flex flex-col gap-6"
+          {/* Direct Communication Channels Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12 pb-8 border-b border-white/10">
+            <a
+              href={`mailto:${personalInfo.contact.email}`}
+              className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-red-600/50 hover:bg-white/[0.06] transition-all flex items-center gap-3"
             >
+              <div className="p-2.5 rounded-xl bg-red-600/10 text-red-500 border border-red-600/20">
+                <Mail className="w-4 h-4" />
+              </div>
+              <div className="overflow-hidden">
+                <div className="text-[10px] font-mono uppercase tracking-wider text-white/40">Email</div>
+                <div className="text-xs font-bold text-white truncate">{personalInfo.contact.email}</div>
+              </div>
+            </a>
+
+            <a
+              href={`tel:${personalInfo.contact.phone}`}
+              className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-red-600/50 hover:bg-white/[0.06] transition-all flex items-center gap-3"
+            >
+              <div className="p-2.5 rounded-xl bg-red-600/10 text-red-500 border border-red-600/20">
+                <Phone className="w-4 h-4" />
+              </div>
               <div>
-                <h3 className="font-serif text-2xl font-bold text-neutral-900 dark:text-rose-50 mb-1">
-                  Send a Message
-                </h3>
-                <p className="text-xs sm:text-sm text-neutral-600 dark:text-rose-200/70">
-                  Fill out the details below and I will get back to you promptly.
-                </p>
+                <div className="text-[10px] font-mono uppercase tracking-wider text-white/40">Phone</div>
+                <div className="text-xs font-bold text-white">{personalInfo.contact.phone}</div>
               </div>
+            </a>
 
-              {/* Name Input */}
-              <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="name"
-                  className="text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-rose-200/80"
-                >
-                  Your Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  required
-                  value={form.name}
-                  onFocus={() => trackContactFormStart('contact_section_form')}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="e.g. Eleanor Vance"
-                  className="w-full px-4 py-3.5 rounded-xl glass-panel border border-rose-200/60 dark:border-rose-800/60 bg-white/50 dark:bg-noir-900/50 text-neutral-900 dark:text-rose-100 placeholder:text-neutral-400 dark:placeholder:text-rose-300/30 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition-all"
-                />
+            <a
+              href={personalInfo.contact.whatsapp}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-red-600/50 hover:bg-white/[0.06] transition-all flex items-center gap-3"
+            >
+              <div className="p-2.5 rounded-xl bg-red-600/10 text-red-500 border border-red-600/20">
+                <MessageCircle className="w-4 h-4" />
               </div>
-
-              {/* Email Input */}
-              <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="email"
-                  className="text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-rose-200/80"
-                >
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  required
-                  value={form.email}
-                  onFocus={() => trackContactFormStart('contact_section_form')}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="you@domain.com"
-                  className="w-full px-4 py-3.5 rounded-xl glass-panel border border-rose-200/60 dark:border-rose-800/60 bg-white/50 dark:bg-noir-900/50 text-neutral-900 dark:text-rose-100 placeholder:text-neutral-400 dark:placeholder:text-rose-300/30 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition-all"
-                />
+              <div>
+                <div className="text-[10px] font-mono uppercase tracking-wider text-white/40">WhatsApp</div>
+                <div className="text-xs font-bold text-white">Direct Message</div>
               </div>
+            </a>
 
-              {/* Message Input */}
-              <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="message"
-                  className="text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-rose-200/80"
-                >
-                  Your Message
-                </label>
-                <textarea
-                  id="message"
-                  required
-                  rows={4}
-                  value={form.message}
-                  onFocus={() => trackContactFormStart('contact_section_form')}
-                  onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  placeholder="Tell me about your project, idea, or collaboration..."
-                  className="w-full px-4 py-3.5 rounded-xl glass-panel border border-rose-200/60 dark:border-rose-800/60 bg-white/50 dark:bg-noir-900/50 text-neutral-900 dark:text-rose-100 placeholder:text-neutral-400 dark:placeholder:text-rose-300/30 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition-all resize-none"
-                />
+            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-red-600/10 text-red-500 border border-red-600/20">
+                <MapPin className="w-4 h-4" />
               </div>
+              <div>
+                <div className="text-[10px] font-mono uppercase tracking-wider text-white/40">Location</div>
+                <div className="text-xs font-bold text-white">India &bull; Remote</div>
+              </div>
+            </div>
+          </div>
 
-              {/* Status Notice */}
-              {statusMessage && (
-                <div
-                  className={`p-3.5 rounded-xl text-xs font-medium flex items-center gap-2 ${
-                    status === 'success'
-                      ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-400/40'
-                      : 'bg-red-500/15 text-red-700 dark:text-red-300 border border-red-400/40'
-                  }`}
-                >
-                  {status === 'success' ? (
-                    <CheckCircle2 className="w-4 h-4 text-rose-500 flex-shrink-0" />
-                  ) : null}
-                  <span>{statusMessage}</span>
+          {/* Form */}
+          {submitted ? (
+            <div className="p-12 rounded-2xl bg-red-600/10 border border-red-600/40 text-center space-y-3 animate-fadeIn my-6">
+              <CheckCircle2 className="w-10 h-10 text-red-500 mx-auto animate-bounce" />
+              <h3 className="text-2xl font-black text-white font-display tracking-[0.08em]">MESSAGE TRANSMITTED</h3>
+              <p className="text-sm text-white/70 max-w-md mx-auto">
+                Thank you, {formData.firstName}! Your message has been received. Vipasana will get back to you shortly.
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="flex flex-col gap-10 md:gap-14 w-full">
+              <div className="flex flex-col md:flex-row gap-10 md:gap-16 w-full">
+                {/* Left Column */}
+                <div className="flex-1 flex flex-col gap-8">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      id="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      placeholder="First Name"
+                      required
+                      className="w-full bg-transparent border-b border-white/20 pb-3 text-base md:text-lg focus:outline-none focus:border-red-600 transition-colors placeholder-white/40 font-medium rounded-none text-white"
+                    />
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      id="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      placeholder="Last Name"
+                      required
+                      className="w-full bg-transparent border-b border-white/20 pb-3 text-base md:text-lg focus:outline-none focus:border-red-600 transition-colors placeholder-white/40 font-medium rounded-none text-white"
+                    />
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="email"
+                      id="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="Email Address"
+                      required
+                      className="w-full bg-transparent border-b border-white/20 pb-3 text-base md:text-lg focus:outline-none focus:border-red-600 transition-colors placeholder-white/40 font-medium rounded-none text-white"
+                    />
+                  </div>
                 </div>
-              )}
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={status === 'loading'}
-                className="w-full py-4 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider bg-gradient-to-r from-rose-500 via-rose-600 to-gold-rosegold hover:from-rose-600 hover:to-rose-700 text-white shadow-lg shadow-rose-500/30 hover:shadow-xl hover:shadow-rose-500/40 transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
-              >
-                {status === 'loading' ? (
-                  <>
-                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Sending Message...</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4" />
-                    <span>Send Message ✨</span>
-                  </>
-                )}
-              </button>
+                {/* Right Column */}
+                <div className="flex-1 flex flex-col">
+                  <div className="relative h-full flex flex-col">
+                    <textarea
+                      id="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      placeholder="Type your message, project idea, or collaboration proposal here..."
+                      required
+                      className="w-full h-full min-h-[160px] bg-transparent border-b border-white/20 pb-3 text-base md:text-lg focus:outline-none focus:border-red-600 transition-colors placeholder-white/40 font-medium resize-none rounded-none text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Section */}
+              <div className="flex flex-col md:flex-row gap-8 pt-6 border-t border-white/10 items-start md:items-center justify-between">
+                {/* Checkbox */}
+                <div className="flex items-center gap-3 text-xs sm:text-sm font-light text-white/70">
+                  <input
+                    type="checkbox"
+                    id="permission"
+                    checked={formData.permission}
+                    onChange={handleChange}
+                    className="w-4 h-4 rounded border-white/30 bg-transparent text-red-600 focus:ring-0 cursor-pointer"
+                    style={{ accentColor: '#E50914' }}
+                  />
+                  <label htmlFor="permission" className="cursor-pointer leading-snug">
+                    I agree to be contacted at this email address for project inquiries.
+                  </label>
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  className="px-8 py-3.5 rounded bg-red-600 hover:bg-red-700 text-white font-bold uppercase tracking-[0.14em] text-xs flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_0_20px_rgba(229,9,20,0.6)] hover:scale-105 active:scale-95 whitespace-nowrap cursor-pointer"
+                >
+                  <span>Transmit Message</span>
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
             </form>
-          </motion.div>
-
-        </div>
-
+          )}
+        </motion.div>
       </div>
     </section>
   );
-}
+};
+
+export default Contact;

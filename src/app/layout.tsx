@@ -1,51 +1,34 @@
 import type { Metadata } from 'next';
-import { Cormorant_Garamond, Plus_Jakarta_Sans, Cinzel } from 'next/font/google';
+import { Bebas_Neue, Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
-import { CustomCursor } from '@/components/ui/CustomCursor';
-import { Preloader } from '@/components/ui/Preloader';
-import { FloatingBlobsScene } from '@/components/3d/FloatingBlobsScene';
-import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
-import { SectionTracker } from '@/components/analytics/SectionTracker';
 
-const cormorant = Cormorant_Garamond({
+const bebasNeue = Bebas_Neue({
+  weight: '400',
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  style: ['normal', 'italic'],
-  variable: '--font-cormorant',
+  variable: '--font-bebas',
   display: 'swap',
 });
 
-const jakarta = Plus_Jakarta_Sans({
+const inter = Inter({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
-  variable: '--font-jakarta',
+  variable: '--font-inter',
   display: 'swap',
 });
 
-const cinzel = Cinzel({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
-  weight: ['400', '600', '700'],
-  variable: '--font-cinzel',
+  variable: '--font-mono',
   display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'Vipasana — Digital Media Specialist & Web Developer',
+  title: 'Vipasana | Digital Media Specialist & Web Developer',
   description:
-    'Luxury portfolio of Vipasana — Digital Media Specialist, Social Media Manager, Web Developer & Creative Designer.',
-  keywords: [
-    'Vipasana',
-    'Portfolio',
-    'Digital Media Specialist',
-    'Web Developer',
-    'Social Media Manager',
-    'Three.js',
-    'Next.js',
-    'Luxury Design',
-  ],
+    'Portfolio of Vipasana — Digital Media Specialist, Social Media Manager, and Web Developer blending creativity with modern technology.',
   icons: {
-    icon: '/favicon.png',
-    apple: '/favicon.png',
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
   },
 };
 
@@ -55,16 +38,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={`${cormorant.variable} ${jakarta.variable} ${cinzel.variable} scroll-smooth`}
-    >
-      <body className="relative bg-[#fff8fa] dark:bg-[#0b0609] text-neutral-900 dark:text-[#fff4f7] antialiased selection:bg-rose-500 selection:text-white">
-        <GoogleAnalytics />
-        <SectionTracker />
-        <Preloader />
-        <CustomCursor />
-        <FloatingBlobsScene />
+    <html lang="en" className={`${bebasNeue.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className="bg-[#050505] text-white selection:bg-red-600 selection:text-white font-sans antialiased">
         {children}
       </body>
     </html>

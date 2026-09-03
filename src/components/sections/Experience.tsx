@@ -1,110 +1,163 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Briefcase, Calendar, CheckCircle2 } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { experienceList } from '@/data/portfolioData';
-import { FloatingCard3D } from '@/components/ui/FloatingCard3D';
 
-export function Experience() {
+gsap.registerPlugin(ScrollTrigger);
+
+const Experience = () => {
+  const containerRef = useRef<HTMLElement>(null);
+  const cardRefs = useRef<HTMLDivElement[]>([]);
+
+  useEffect(() => {
+    const cards = cardRefs.current;
+    if (!cards.length) return;
+
+    cards.forEach((card, index) => {
+      if (index === cards.length - 1) return; // Keep the top-most card fully focused
+
+      gsap.to(card, {
+        scale: 0.92 - index * 0.025,
+        y: -15 - index * 8,
+        filter: 'blur(6px)',
+        opacity: 0.4,
+        scrollTrigger: {
+          trigger: card,
+          start: `top ${90 + index * 20}px`,
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
+    });
+
+    // Magnetic mouse highlight per card
+    const handleMouseMove = (e: MouseEvent, card: HTMLDivElement) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      card.style.setProperty('--mouse-x', `${x}px`);
+      card.style.setProperty('--mouse-y', `${y}px`);
+    };
+
+    const listeners: Array<{ card: HTMLDivElement; fn: (e: MouseEvent) => void }> = [];
+
+    cards.forEach((card) => {
+      if (!card) return;
+      const listener = (e: MouseEvent) => handleMouseMove(e, card);
+      card.addEventListener('mousemove', listener);
+      listeners.push({ card, fn: listener });
+    });
+
+    return () => {
+      listeners.forEach(({ card, fn }) => card.removeEventListener('mousemove', fn));
+      ScrollTrigger.getAll().forEach((t) => t.kill());
+    };
+  }, []);
+
+  const addToRefs = (el: HTMLDivElement | null) => {
+    if (el && !cardRefs.current.includes(el)) {
+      cardRefs.current.push(el);
+    }
+  };
+
   return (
-    <section id="experience" className="py-24 sm:py-32 relative z-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        
+    <section
+      id="experience"
+      ref={containerRef}
+      className="relative w-full bg-[#050505] text-white py-24 px-6 md:px-12 select-none overflow-hidden border-t border-white/5"
+    >
+      {/* Cinematic Red Ambient Glow */}
+      <div className="absolute top-1/3 left-1/4 w-[450px] h-[450px] bg-red-600/10 rounded-full blur-[140px] pointer-events-none" />
+
+      <div className="relative z-10 max-w-6xl mx-auto w-full space-y-12">
         {/* Section Header */}
-        <div className="flex flex-col items-center text-center mb-16 sm:mb-20">
-          <motion.span
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-xs sm:text-sm uppercase tracking-[0.25em] text-rose-600 dark:text-rose-400 font-semibold mb-3"
-          >
-            Experience
-          </motion.span>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-neutral-900 dark:text-rose-50 mb-3"
-          >
-            A growing{' '}
-            <span className="gradient-text-rose italic font-serif">
-              journey
-            </span>
-          </motion.h2>
-          <p className="text-neutral-600 dark:text-rose-200/70 text-sm sm:text-base max-w-md">
-            Interactive 3D career timeline & professional contributions.
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
+          <div className="space-y-3 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-black/80 backdrop-blur-xl border border-red-600/40 text-[11px] font-mono uppercase tracking-widest text-white shadow-xl">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping" />
+              <span className="text-red-500 font-bold tracking-wider">CAREER PATH</span>
+              <span className="text-white/40">|</span>
+              <span className="tracking-wider">WORK EXPERIENCE</span>
+            </div>
+            <h2 className="text-3xl md:text-5xl font-black text-white tracking-[0.06em] md:tracking-[0.08em] leading-tight font-display uppercase">
+              PROFESSIONAL JOURNEY <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-600 to-red-700 drop-shadow-[0_0_25px_rgba(229,9,20,0.35)]">
+                WORK TIMELINE.
+              </span>
+            </h2>
+          </div>
+          <p className="text-white/60 text-xs md:text-sm font-light leading-relaxed max-w-xs">
+            Proven track record in social media management, digital marketing, and modern frontend web engineering.
           </p>
         </div>
 
-        {/* Experience 3D Timeline Grid */}
-        <div className="max-w-4xl mx-auto relative">
-          
-          {/* Luminous Central Bar */}
-          <div className="absolute top-6 bottom-6 left-4 sm:left-1/2 -translate-x-1/2 w-[2px] bg-gradient-to-b from-rose-500 via-gold-rosegold to-rose-400/20" />
+        {/* 1-on-1 Gradient Stacking Container */}
+        <div className="relative flex flex-col gap-8 pb-20">
+          {experienceList.map((item, index) => (
+            <div
+              key={item.id}
+              ref={addToRefs}
+              className={`sticky w-full p-6 md:p-8 rounded-2xl bg-gradient-to-br ${item.gradient} backdrop-blur-2xl border border-white/10 shadow-[0_20px_45px_rgba(0,0,0,0.85)] flex flex-col justify-between min-h-[240px] md:min-h-[260px] transform-gpu transition-all overflow-hidden group hover:border-red-600/50`}
+              style={{
+                zIndex: index + 1,
+                top: `${95 + index * 16}px`,
+              }}
+            >
+              {/* Dynamic Mouse Spotlight Highlight */}
+              <div
+                className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0"
+                style={{
+                  background:
+                    'radial-gradient(350px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(229,9,20,0.18), transparent 70%)',
+                }}
+              />
 
-          <div className="flex flex-col gap-12 sm:gap-16">
-            {experienceList.map((exp, idx) => {
-              const isEven = idx % 2 === 0;
-              return (
-                <div
-                  key={exp.id}
-                  className={`relative flex flex-col sm:flex-row items-start ${
-                    isEven ? '' : 'sm:flex-row-reverse'
-                  } gap-6 sm:gap-12 pl-12 sm:pl-0`}
-                >
-                  {/* Glowing 3D Milestone Node */}
-                  <div className="absolute left-4 sm:left-1/2 -translate-x-1/2 top-6 z-20 w-9 h-9 rounded-full bg-white dark:bg-noir-900 border-2 border-rose-500 flex items-center justify-center shadow-rose-glow group cursor-pointer hover:scale-125 transition-transform">
-                    <span className="w-3 h-3 rounded-full bg-rose-500 animate-ping opacity-75" />
-                    <span className="absolute w-2.5 h-2.5 rounded-full bg-rose-500" />
-                  </div>
+              {/* Crimson Accent Stripe */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-[2px] bg-gradient-to-r from-transparent via-red-600 to-transparent z-10" />
 
-                  {/* 3D Interactive Floating & Tilting Card */}
-                  <div className="w-full sm:w-[calc(50%-2rem)]">
-                    <FloatingCard3D
-                      delay={idx * 0.12}
-                      floatOffset={5 + (idx % 2) * 4}
-                      floatDuration={4.5 + (idx % 3)}
-                    >
-                      {/* Period Badge */}
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-100/90 dark:bg-noir-750/90 text-rose-700 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/60 mb-3">
-                        <Calendar className="w-3 h-3 text-rose-500" />
-                        <span>{exp.period}</span>
-                      </div>
-
-                      {/* Role & Company */}
-                      <h3 className="font-serif text-2xl font-bold text-neutral-900 dark:text-rose-50 mb-1 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">
-                        {exp.role}
-                      </h3>
-                      
-                      <div className="flex items-center gap-2 text-sm font-semibold text-neutral-600 dark:text-rose-300/85 mb-5">
-                        <Briefcase className="w-4 h-4 text-rose-500" />
-                        <span>{exp.company}</span>
-                      </div>
-
-                      {/* Highlights */}
-                      <ul className="space-y-2.5">
-                        {exp.highlights.map((item, i) => (
-                          <li
-                            key={i}
-                            className="flex items-start gap-2.5 text-xs sm:text-sm text-neutral-600 dark:text-rose-100/75 leading-relaxed"
-                          >
-                            <CheckCircle2 className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </FloatingCard3D>
-                  </div>
+              {/* Card Header Top */}
+              <div className="flex items-center justify-between w-full mb-4 relative z-10">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-[0.16em] text-red-500 px-2.5 py-0.5 rounded bg-red-600/10 border border-red-600/25">
+                    {item.tag}
+                  </span>
+                  <span className="text-[11px] font-mono text-white/50 tracking-wider">{item.period}</span>
                 </div>
-              );
-            })}
-          </div>
+                <span className="text-2xl md:text-3xl font-mono font-black text-white/20 tracking-wider">
+                  {item.indexNum}
+                </span>
+              </div>
 
+              {/* Card Body */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start my-auto relative z-10">
+                <div className="lg:col-span-5 space-y-1">
+                  <h3 className="text-2xl md:text-3xl font-black text-white tracking-wide leading-snug group-hover:text-red-500 transition-colors duration-300">
+                    {item.role}
+                  </h3>
+                  <p className="text-sm font-semibold text-red-400 font-mono tracking-wider">{item.company}</p>
+                </div>
+                <div className="lg:col-span-7">
+                  <ul className="space-y-2 text-xs md:text-sm text-white/80 font-light leading-relaxed">
+                    {item.highlights.map((bullet, bIdx) => (
+                      <li key={bIdx} className="flex items-start gap-2">
+                        <span className="text-red-500 font-bold text-xs mt-0.5">&#8250;</span>
+                        <span>{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Subtle Red Corner Dot */}
+              <div className="absolute bottom-4 right-4 w-1.5 h-1.5 rounded-full bg-red-600 group-hover:shadow-[0_0_10px_#E50914] z-10 transition-all" />
+            </div>
+          ))}
         </div>
-
       </div>
     </section>
   );
-}
+};
+
+export default Experience;

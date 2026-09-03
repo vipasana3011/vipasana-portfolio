@@ -1,127 +1,105 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Award, Eye, CheckCircle, Sparkles } from 'lucide-react';
-import { certificationsList, personalInfo } from '@/data/portfolioData';
+import { useState } from 'react';
+import { Award, Eye, FileCheck } from 'lucide-react';
+import { certificationsList } from '@/data/portfolioData';
+import CertificateModal from '@/components/ui/CertificateModal';
 import { Certification } from '@/types';
-import { CertificateModal } from '@/components/ui/CertificateModal';
-import { FloatingCard3D } from '@/components/ui/FloatingCard3D';
-import { trackCertificateClick } from '@/lib/analytics';
 
-export function Certifications() {
+const Certifications = () => {
   const [selectedCert, setSelectedCert] = useState<Certification | null>(null);
 
   return (
-    <section id="certifications" className="py-24 sm:py-32 relative z-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        
+    <section
+      id="certifications"
+      className="relative w-full bg-[#050505] text-white py-28 px-6 md:px-12 select-none overflow-hidden border-t border-white/5"
+    >
+      {/* Background Ambient Crimson Glow */}
+      <div className="absolute top-1/2 right-1/4 w-[500px] h-[500px] bg-red-600/10 rounded-full blur-[160px] pointer-events-none" />
+
+      <div className="relative z-10 max-w-7xl mx-auto w-full space-y-12">
         {/* Section Header */}
-        <div className="flex flex-col items-center text-center mb-16 sm:mb-20">
-          <motion.span
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-xs sm:text-sm uppercase tracking-[0.25em] text-rose-600 dark:text-rose-400 font-semibold mb-3"
-          >
-            Certifications
-          </motion.span>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-neutral-900 dark:text-rose-50 mb-3"
-          >
-            Credentials &{' '}
-            <span className="gradient-text-rose italic font-serif">
-              milestones
+        <div className="flex flex-col items-start space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-black/80 backdrop-blur-xl border border-red-600/40 text-[11px] font-mono uppercase tracking-widest text-white shadow-xl">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping" />
+            <span className="text-red-500 font-bold tracking-wider">CREDENTIALS</span>
+            <span className="text-white/40">|</span>
+            <span className="tracking-wider">CERTIFICATIONS & AWARDS</span>
+          </div>
+          <h2 className="text-3xl md:text-5xl font-black text-white tracking-[0.06em] md:tracking-[0.08em] leading-tight font-display uppercase">
+            HONORS & CREDENTIALS &bull;{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-600 to-red-700 drop-shadow-[0_0_25px_rgba(229,9,20,0.35)]">
+              VERIFIED RECOGNITION
             </span>
-          </motion.h2>
-          <p className="text-neutral-600 dark:text-rose-200/70 text-sm sm:text-base max-w-md">
-            Click any certificate card below to view the official verified document.
+          </h2>
+          <p className="text-white/60 text-xs md:text-sm font-light max-w-lg">
+            Certified technical competencies, security training, and design challenge recognitions. Click any card to inspect the full certificate.
           </p>
         </div>
 
-        {/* 3D Glowing Gradient Border Certificate Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-20">
-          {certificationsList.map((cert, idx) => (
-            <FloatingCard3D
+        {/* Certifications Grid - Preview Images Removed from Card Face (Only on click modal) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {certificationsList.map((cert) => (
+            <div
               key={cert.id}
-              delay={idx * 0.1}
-              floatOffset={5 + (idx % 3) * 3}
-              floatDuration={5 + (idx % 2)}
-              onClick={() => {
-                setSelectedCert(cert);
-                trackCertificateClick(cert.title, cert.issuer, cert.year, 'certifications_grid');
-              }}
-              className="group cursor-pointer flex flex-col justify-between"
+              onClick={() => setSelectedCert(cert)}
+              className="group relative bg-[#141414]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-7 shadow-2xl hover:border-red-600/60 transition-all duration-500 cursor-pointer flex flex-col justify-between hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(229,9,20,0.2)] overflow-hidden"
             >
-              <div>
-                {/* Header Tag Bar */}
-                <div className="flex items-center justify-between gap-2 mb-4">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-100/90 dark:bg-noir-750/90 text-rose-700 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/60 shadow-xs">
-                    <Award className="w-3.5 h-3.5 text-rose-500" />
-                    {cert.issuer} · {cert.year}
-                  </span>
+              {/* Subtle Top Crimson Accent Line */}
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-red-600/40 group-hover:via-red-600 to-transparent transition-all duration-500" />
 
-                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    Verified
+              <div className="space-y-4">
+                {/* Top Badge & Issuer Row */}
+                <div className="flex items-center justify-between">
+                  <span className="px-3 py-1 rounded-md bg-red-600/10 border border-red-600/30 text-red-500 font-mono text-[10px] font-bold tracking-[0.16em] uppercase flex items-center gap-1.5">
+                    <Award className="w-3.5 h-3.5 text-red-500" />
+                    {cert.badge}
+                  </span>
+                  <span className="text-xs font-mono text-white/50 tracking-wider font-semibold">
+                    {cert.year}
                   </span>
                 </div>
 
-                {/* Title */}
-                <h3 className="font-serif text-xl sm:text-2xl font-bold text-neutral-900 dark:text-rose-50 mb-3 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors leading-snug">
-                  {cert.title}
-                </h3>
+                {/* Title & Organization */}
+                <div className="space-y-1">
+                  <h3 className="text-xl font-black text-white group-hover:text-red-400 transition-colors tracking-wide leading-snug">
+                    {cert.title}
+                  </h3>
+                  <p className="text-xs font-mono text-red-400 font-semibold tracking-wider flex items-center gap-1.5 pt-0.5">
+                    <FileCheck className="w-3.5 h-3.5 text-red-400" />
+                    {cert.issuer}
+                  </p>
+                </div>
 
                 {/* Description */}
-                <p className="text-xs sm:text-sm text-neutral-600 dark:text-rose-200/75 leading-relaxed mb-6">
+                <p className="text-xs text-white/70 font-light leading-relaxed">
                   {cert.description}
                 </p>
               </div>
 
-              {/* Click to View Action Prompt */}
-              <div className="pt-4 border-t border-rose-100/70 dark:border-noir-750 flex items-center justify-between text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 group-hover:text-rose-700 dark:group-hover:text-rose-300">
-                <span className="inline-flex items-center gap-1.5">
-                  <Eye className="w-3.5 h-3.5" />
-                  View Certificate
-                </span>
-                <span className="transform transition-transform group-hover:translate-x-1">↗</span>
+              {/* Bottom Action: Click to view certificate in modal */}
+              <div className="pt-6 mt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono">
+                <span className="text-white/40 tracking-wider">// VERIFIED CREDENTIAL</span>
+                <button
+                  type="button"
+                  className="px-3.5 py-1.5 rounded-lg bg-white/5 group-hover:bg-red-600 text-white font-bold tracking-wider flex items-center gap-1.5 transition-all shadow-sm"
+                >
+                  <Eye className="w-3.5 h-3.5 text-red-400 group-hover:text-white" />
+                  <span>View Certificate</span>
+                </button>
               </div>
-            </FloatingCard3D>
+            </div>
           ))}
         </div>
-
-        {/* Impact Counters & Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          {personalInfo.stats.map((stat, idx) => (
-            <FloatingCard3D
-              key={stat.label}
-              delay={idx * 0.12}
-              floatOffset={4}
-              floatDuration={6}
-              className="text-center flex flex-col items-center justify-center py-8"
-            >
-              <div className="font-serif text-4xl sm:text-5xl font-extrabold text-rose-600 dark:text-rose-400 mb-2 font-mono">
-                {stat.value}
-                <span className="text-rose-400 dark:text-rose-300">{stat.suffix}</span>
-              </div>
-              <p className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-neutral-700 dark:text-rose-200/80">
-                {stat.label}
-              </p>
-            </FloatingCard3D>
-          ))}
-        </div>
-
       </div>
 
-      {/* Lightbox Modal for Certificate Document */}
+      {/* Full-Resolution Certificate Modal (Displays on click) */}
       <CertificateModal
-        cert={selectedCert}
+        certification={selectedCert}
         onClose={() => setSelectedCert(null)}
       />
     </section>
   );
-}
+};
+
+export default Certifications;

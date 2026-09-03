@@ -1,102 +1,233 @@
 'use client';
 
-import React from 'react';
-import dynamic from 'next/dynamic';
-import { motion } from 'framer-motion';
-import { Code, Megaphone, Wrench, Sparkles } from 'lucide-react';
+import { useLayoutEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { skillCategories } from '@/data/portfolioData';
 
-// Dynamically import Three.js interactive 3D skill orbit
-const Skills3DOrbit = dynamic(
-  () => import('@/components/3d/Skills3DOrbit').then((mod) => mod.Skills3DOrbit),
-  { ssr: false }
-);
+gsap.registerPlugin(ScrollTrigger);
 
-export function Skills() {
-  const iconMap: Record<string, React.ReactNode> = {
-    '💻': <Code className="w-5 h-5 text-rose-500" />,
-    '📈': <Megaphone className="w-5 h-5 text-rose-500" />,
-    '✨': <Wrench className="w-5 h-5 text-rose-500" />,
+const Skills = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const bgRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const textRefs = useRef<(HTMLHeadingElement | null)[]>([]);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (typeof window !== 'undefined' && window.innerWidth >= 769) return;
+    const container = e.currentTarget;
+    const center = container.scrollLeft + container.offsetWidth / 2;
+
+    let activeIdx = 0;
+    let minDiff = Infinity;
+
+    cardsRef.current.forEach((card, i) => {
+      if (!card) return;
+      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+      const diff = Math.abs(cardCenter - center);
+      if (diff < minDiff) {
+        minDiff = diff;
+        activeIdx = i;
+      }
+    });
+
+    cardsRef.current.forEach((card, i) => {
+      if (card) {
+        gsap.to(card, {
+          scale: i === activeIdx ? 1 : 0.9,
+          duration: 0.4,
+          ease: 'power2.out',
+          overwrite: 'auto',
+        });
+      }
+    });
+
+    bgRefs.current.forEach((bg, i) => {
+      if (bg) gsap.to(bg, { opacity: i === activeIdx ? 1 : 0, duration: 0.4, overwrite: 'auto' });
+    });
+
+    textRefs.current.forEach((txt, i) => {
+      if (txt) gsap.to(txt, { opacity: i === activeIdx ? 1 : 0, duration: 0.4, overwrite: 'auto' });
+    });
   };
 
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+
+      mm.add('(min-width: 769px)', () => {
+        const updateCards = (p: number) => {
+          cardsRef.current.forEach((card, i) => {
+            if (!card) return;
+            const offset = i - p;
+
+            const radius = 1800;
+            const angleSpread = 18;
+
+            const angle = offset * angleSpread;
+            const rad = (angle * Math.PI) / 180;
+
+            const x = Math.sin(rad) * radius;
+            const y = radius - Math.cos(rad) * radius;
+            const z = -Math.abs(offset) * 50;
+
+            const scale = Math.max(0.4, 1 - Math.abs(offset) * 0.15);
+            const rotateZ = angle;
+
+            const opacity = Math.max(0.1, 1 - Math.abs(offset) * 0.3);
+            const zIndex = Math.round(100 - Math.abs(offset) * 10);
+
+            gsap.set(card, {
+              x,
+              y,
+              z,
+              scale,
+              rotationZ: rotateZ,
+              rotationY: 0,
+              opacity,
+              zIndex,
+            });
+          });
+
+          bgRefs.current.forEach((bg, i) => {
+            if (!bg) return;
+            const itemOpacity = Math.max(0, 1 - Math.abs(i - p));
+            gsap.set(bg, { opacity: itemOpacity });
+
+            if (textRefs.current[i]) {
+              gsap.set(textRefs.current[i], { opacity: itemOpacity });
+            }
+          });
+        };
+
+        updateCards(0);
+
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: 'top top',
+          end: '+=450%',
+          pin: true,
+          scrub: 1,
+          onUpdate: (self) => {
+            const p = self.progress * (skillCategories.length - 1);
+            updateCards(p);
+          },
+        });
+      });
+
+      mm.add('(max-width: 768px)', () => {
+        cardsRef.current.forEach((card, i) => {
+          if (card) {
+            gsap.set(card, { clearProps: 'x,y,z,rotation,scale,opacity,position' });
+            gsap.set(card, { scale: i === 0 ? 1 : 0.9 });
+          }
+        });
+
+        bgRefs.current.forEach((bg, i) => {
+          if (bg) gsap.set(bg, { clearProps: 'all', opacity: i === 0 ? 1 : 0 });
+        });
+
+        textRefs.current.forEach((txt, i) => {
+          if (txt) gsap.set(txt, { clearProps: 'all', opacity: i === 0 ? 1 : 0 });
+        });
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section id="skills" className="py-24 sm:py-32 relative z-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        
-        {/* Section Header */}
-        <div className="flex flex-col items-center text-center mb-16">
-          <motion.span
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-xs sm:text-sm uppercase tracking-[0.25em] text-rose-600 dark:text-rose-400 font-semibold mb-3"
-          >
-            Skills
-          </motion.span>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-neutral-900 dark:text-rose-50 mb-3"
-          >
-            Toolbox &{' '}
-            <span className="gradient-text-rose italic font-serif">
-              craft
-            </span>
-          </motion.h2>
-          <p className="text-neutral-600 dark:text-rose-200/70 text-sm sm:text-base max-w-md">
-            Interactive 3D constellation & categorized mastery.
-          </p>
-        </div>
+    <section
+      id="skills"
+      ref={sectionRef}
+      className="relative w-full h-screen bg-[#0b0b0b] text-white overflow-hidden flex items-center justify-center md:[perspective:1000px] select-none border-t border-white/5"
+    >
+      {/* Dynamic Background Vignettes */}
+      {skillCategories.map((_, i) => (
+        <div
+          key={i}
+          ref={(el) => {
+            bgRefs.current[i] = el;
+          }}
+          className="absolute inset-0 z-0 pointer-events-none opacity-0 bg-gradient-to-tr from-black via-[#140203] to-black transition-opacity duration-300"
+        />
+      ))}
 
-        {/* 3D Interactive Tag Orbit Canvas */}
-        <div className="mb-14 p-4 rounded-3xl glass-panel border border-rose-200/50 dark:border-rose-900/40 bg-white/40 dark:bg-noir-900/40 shadow-xl overflow-hidden relative">
-          <div className="absolute top-4 left-6 flex items-center gap-2 text-xs font-semibold text-rose-600 dark:text-rose-300">
-            <Sparkles className="w-3.5 h-3.5 text-rose-500" />
-            <span>Interactive 3D Sphere · Drag to rotate</span>
+      {/* Massive Background Typography with generous letter spacing */}
+      <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
+        {skillCategories.map((_, i) => (
+          <h1
+            key={`text-${i}`}
+            ref={(el) => {
+              textRefs.current[i] = el;
+            }}
+            className="absolute text-[22vw] md:text-[18vw] font-black uppercase text-transparent leading-none tracking-[0.14em] mix-blend-overlay font-display select-none"
+            style={{
+              WebkitTextStroke: `2px ${i % 2 === 0 ? 'rgba(229,9,20,0.35)' : 'rgba(255,255,255,0.15)'}`,
+              opacity: 0,
+            }}
+          >
+            SKILLS
+          </h1>
+        ))}
+      </div>
+
+      {/* Carousel Container */}
+      <div
+        className="relative w-full h-full flex md:items-center md:justify-center z-10 md:[transform-style:preserve-3d] overflow-x-auto overflow-y-hidden md:overflow-visible snap-x snap-mandatory scrollbar-hide items-center px-[10vw] md:px-0 gap-4 md:gap-0 touch-pan-x"
+        onScroll={handleScroll}
+      >
+        {skillCategories.map((category, i) => (
+          <div
+            key={category.id}
+            ref={(el) => {
+              cardsRef.current[i] = el;
+            }}
+            className="md:absolute relative shrink-0 snap-center w-[82vw] sm:w-[360px] md:w-[440px] h-[460px] md:h-[540px] rounded-[32px] p-8 md:p-10 bg-[#141414]/95 backdrop-blur-2xl border border-white/15 flex flex-col justify-between overflow-hidden group shadow-[0_30px_60px_rgba(0,0,0,0.9)] hover:border-red-600/80 transition-colors duration-500"
+          >
+            {/* Inner Red Glossy Reflection */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-red-600/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20" />
+
+            {/* Top Card Metadata */}
+            <div className="flex items-center justify-between relative z-10">
+              <span className="text-[10px] font-mono font-bold tracking-[0.16em] uppercase text-red-500 bg-red-600/10 px-3 py-1 rounded border border-red-600/20 flex items-center gap-1.5">
+                <span>{category.icon}</span>
+                <span>{category.tag}</span>
+              </span>
+              <span className="text-xs font-mono text-white/40 tracking-wider">
+                [ 0{i + 1} / 06 ]
+              </span>
+            </div>
+
+            {/* Middle Title & Description with clean letter spacing */}
+            <div className="space-y-4 relative z-10 my-auto">
+              <h3 className="text-3xl md:text-4xl font-black text-white tracking-[0.06em] group-hover:text-red-500 transition-colors duration-300 font-display uppercase leading-tight">
+                {category.title}
+              </h3>
+              <p className="text-sm md:text-base text-white/70 font-light leading-relaxed">
+                {category.desc}
+              </p>
+            </div>
+
+            {/* Bottom Skill Badges */}
+            <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10 relative z-10">
+              {category.skills.map((skill, sIdx) => (
+                <span
+                  key={sIdx}
+                  className="text-xs font-mono text-white/80 bg-white/5 border border-white/10 px-3 py-1 rounded group-hover:border-red-600/30 transition-colors tracking-wide"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+
+            {/* Bottom Glow Accent */}
+            <div className="absolute bottom-4 right-4 w-2 h-2 rounded-full bg-red-600 group-hover:shadow-[0_0_15px_#E50914] transition-all" />
           </div>
-          <Skills3DOrbit />
-        </div>
-
-        {/* Skill Category Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-          {skillCategories.map((category, idx) => (
-            <motion.div
-              key={category.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: idx * 0.15 }}
-              whileHover={{ y: -6 }}
-              className="p-7 sm:p-8 rounded-3xl glass-panel border border-rose-200/50 dark:border-rose-900/40 bg-white/70 dark:bg-noir-850/70 shadow-lg hover:shadow-xl hover:border-rose-400/60 transition-all flex flex-col"
-            >
-              {/* Category Header */}
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-rose-100/80 dark:bg-noir-750/80 border border-rose-200/60 dark:border-rose-800/60 flex-shrink-0">
-                  {iconMap[category.icon] || <Sparkles className="w-5 h-5 text-rose-500" />}
-                </div>
-                <h3 className="font-serif text-xl sm:text-2xl font-bold text-neutral-900 dark:text-rose-50">
-                  {category.title}
-                </h3>
-              </div>
-
-              {/* Skills Tags */}
-              <div className="flex flex-wrap gap-2 mt-auto">
-                {category.skills.map((skill) => (
-                  <span
-                    key={skill}
-                    className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-50/90 dark:bg-noir-800/90 text-rose-800 dark:text-rose-200 border border-rose-200/60 dark:border-rose-800/60 hover:bg-rose-500 hover:text-white dark:hover:bg-rose-500 dark:hover:text-white hover:border-rose-500 transition-all cursor-default shadow-sm"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
+        ))}
       </div>
     </section>
   );
-}
+};
+
+export default Skills;

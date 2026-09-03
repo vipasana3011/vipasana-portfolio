@@ -3,11 +3,13 @@ export interface Project {
   title: string;
   category: 'web' | 'smm';
   tag: string;
-  description?: string;
+  description: string;
   image: string;
   link: string;
   featured?: boolean;
-  technologies?: string[];
+  technologies: string[];
+  indexNum?: string;
+  match?: string;
 }
 
 export interface Experience {
@@ -15,7 +17,10 @@ export interface Experience {
   role: string;
   company: string;
   period: string;
+  tag: string;
+  indexNum: string;
   highlights: string[];
+  gradient: string;
 }
 
 export interface Education {
@@ -34,16 +39,22 @@ export interface Certification {
   year: string;
   description: string;
   image: string;
+  badge?: string;
 }
 
 export interface SkillCategory {
+  id: string;
   title: string;
-  skills: string[];
+  desc: string;
+  tag: string;
   icon: string;
+  skills: string[];
 }
 
 export interface ContactFormData {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   message: string;
+  permission: boolean;
 }

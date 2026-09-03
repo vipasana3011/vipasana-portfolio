@@ -46,9 +46,9 @@ export const personalInfo = {
     portrait: '/images/vipaabout.jpg',
   },
   stats: [
-    { label: 'Internships Completed', value: 3, suffix: '+' },
-    { label: 'Projects Delivered', value: 10, suffix: '+' },
-    { label: 'Curiosity & Drive', value: 100, suffix: '%' },
+    { label: 'Internships Completed', value: '3+' },
+    { label: 'Projects Delivered', value: '10+' },
+    { label: 'Curiosity & Drive', value: '100%' },
   ],
 };
 
@@ -57,10 +57,10 @@ export const educationList: Education[] = [
     id: 'bca',
     degree: 'Bachelor of Computer Applications',
     institution: 'University of Rajasthan',
-    period: '2023 – Present',
-    badge: '🎓 Undergraduate',
+    period: '2023 – 2026',
+    badge: '🎓 Graduate',
     description:
-      'Pursuing a strong foundation in computer science, programming, web development and digital technologies.',
+      'Completed a strong foundation in computer science, programming, web development and digital technologies.',
   },
   {
     id: 'rbse',
@@ -79,6 +79,9 @@ export const experienceList: Experience[] = [
     role: 'Social Media Manager',
     company: 'Xsoln Technologies',
     period: 'Aug 2025 – Oct 2025',
+    indexNum: '01',
+    tag: 'SOCIAL MEDIA & CONTENT STRATEGY',
+    gradient: 'from-[#1f0a0c] via-[#121212] to-[#0a0a0a]',
     highlights: [
       "Created and curated content for the company's social media platforms.",
       'Planned content calendars and scheduled posts to maintain a consistent social media presence.',
@@ -90,6 +93,9 @@ export const experienceList: Experience[] = [
     role: 'Web Development Intern',
     company: 'Infotact Solutions',
     period: 'Jun 2025 – Aug 2025',
+    indexNum: '02',
+    tag: 'FRONTEND ENGINEERING & E-COMMERCE',
+    gradient: 'from-[#1a0809] via-[#111111] to-[#090909]',
     highlights: [
       'Built responsive interfaces using HTML, CSS and JavaScript.',
       'Contributed to a niche e-commerce front-end as part of the team.',
@@ -101,6 +107,9 @@ export const experienceList: Experience[] = [
     role: 'Social Media Manager',
     company: "St. Wilfred's TPO",
     period: 'May 2024 – May 2025',
+    indexNum: '03',
+    tag: 'BRAND AWARENESS & DIGITAL CAMPAIGNS',
+    gradient: 'from-[#220a0d] via-[#131313] to-[#0a0a0a]',
     highlights: [
       'Planned, created and scheduled content across Instagram, LinkedIn and Facebook.',
       'Managed social media activities including reels, stories and regular content publishing.',
@@ -112,6 +121,9 @@ export const experienceList: Experience[] = [
     role: 'Digital Marketing Intern',
     company: 'DBrand Camp',
     period: 'Apr 2023 – Jul 2023',
+    indexNum: '04',
+    tag: 'SEO OPTIMIZATION & GROWTH HACKING',
+    gradient: 'from-[#1d090b] via-[#101010] to-[#080808]',
     highlights: [
       'Worked on Off-Page SEO and effective backlink building.',
       'Handled Local SEO and Google Business Profile optimization.',
@@ -126,13 +138,15 @@ export const projectsList: Project[] = [
     id: 'nivala',
     title: 'Nivala — 3D Food Ordering & Delivery',
     category: 'web',
-    tag: 'Web Development (Full-Stack)',
+    tag: 'Full-Stack Web App',
     description:
       'A full-stack food ordering/delivery website built with Next.js, TypeScript, Tailwind CSS, and Supabase — featuring dynamic menu listings, cart functionality, and user authentication.',
     image: '/images/nivala.png',
     link: 'https://nivala-food.vercel.app/',
     featured: true,
     technologies: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Supabase'],
+    indexNum: '#01',
+    match: '99%',
   },
   {
     id: 'viilora',
@@ -145,6 +159,8 @@ export const projectsList: Project[] = [
     link: 'https://viilora-skincare.vercel.app/',
     featured: true,
     technologies: ['Next.js', 'React', 'Tailwind CSS', 'TypeScript'],
+    indexNum: '#02',
+    match: '98%',
   },
   {
     id: 'percentage-calculator',
@@ -156,6 +172,8 @@ export const projectsList: Project[] = [
     image: '/images/calweb.png',
     link: 'https://vipasana3011.github.io/Percentage-Calculator/',
     technologies: ['JavaScript', 'HTML5', 'CSS3'],
+    indexNum: '#03',
+    match: '97%',
   },
   {
     id: 'srili',
@@ -167,17 +185,21 @@ export const projectsList: Project[] = [
     image: '/images/srili.png',
     link: 'https://srili-ecommerce.vercel.app/',
     technologies: ['React', 'CSS Modules', 'Vercel'],
+    indexNum: '#04',
+    match: '98%',
   },
   {
     id: 'birthday',
     title: 'Happy Birthday Bhavya',
     category: 'web',
-    tag: 'Interactive Celebration Experience',
+    tag: 'Interactive Web Experience',
     description:
       'A bespoke celebratory interactive web experience with animated greetings, memory galleries, and delightful micro-interactions.',
     image: '/images/birthday.png',
     link: 'https://happy-birthday-bhavya.vercel.app/',
     technologies: ['HTML5', 'CSS Animations', 'JavaScript'],
+    indexNum: '#05',
+    match: '99%',
   },
   {
     id: 'jaipur',
@@ -189,6 +211,8 @@ export const projectsList: Project[] = [
     image: '/images/jaipur.png',
     link: 'https://jaipurdotcom.vercel.app/',
     technologies: ['JavaScript', 'Tailwind CSS', 'Web Design'],
+    indexNum: '#06',
+    match: '96%',
   },
   {
     id: 'kashuti-boutique',
@@ -200,6 +224,8 @@ export const projectsList: Project[] = [
     image: '/images/kashuti.png',
     link: 'https://kashuti-boutique.vercel.app/',
     technologies: ['React', 'Responsive UI', 'Modern CSS'],
+    indexNum: '#07',
+    match: '97%',
   },
   {
     id: 'priyanka-properties',
@@ -211,6 +237,8 @@ export const projectsList: Project[] = [
     image: '/images/priyanka-properties.png',
     link: 'https://priyankaproperties.vercel.app/',
     technologies: ['Next.js', 'Tailwind CSS', 'Vercel'],
+    indexNum: '#08',
+    match: '98%',
   },
 
   // Social Media Management Projects
@@ -224,6 +252,8 @@ export const projectsList: Project[] = [
     image: '/images/content.png',
     link: 'https://my-smm-portfolio.netlify.app',
     technologies: ['Canva', 'Meta Suite', 'Content Strategy', 'Copywriting'],
+    indexNum: '#09',
+    match: '100%',
   },
   {
     id: 'smm-performance',
@@ -235,54 +265,59 @@ export const projectsList: Project[] = [
     image: '/images/engagement.png',
     link: 'https://my-smm-portfolio.netlify.app',
     technologies: ['Analytics', 'Ad Campaigning', 'Growth Hacking', 'Community'],
+    indexNum: '#10',
+    match: '99%',
   },
 ];
 
 export const skillCategories: SkillCategory[] = [
   {
-    title: 'Web & Tech',
+    id: 'frontend',
+    title: 'Frontend Engineering',
+    desc: 'Crafting responsive, high-performance web applications and interactive user interfaces using modern web standards.',
+    tag: 'UI & INTERACTION',
     icon: '💻',
-    skills: [
-      'HTML5',
-      'CSS3',
-      'JavaScript (ES6+)',
-      'React.js',
-      'Next.js',
-      'TypeScript',
-      'Tailwind CSS',
-      'Supabase',
-      'Git & GitHub',
-      'REST APIs',
-    ],
+    skills: ['HTML5', 'CSS3', 'JavaScript (ES6+)', 'React.js', 'Next.js', 'Tailwind CSS'],
   },
   {
-    title: 'Marketing & Strategy',
+    id: 'backend',
+    title: 'Full-Stack & Cloud APIs',
+    desc: 'Building modern web solutions, handling cloud database integrations with Supabase, and consuming REST APIs.',
+    tag: 'ARCHITECTURE',
+    icon: '⚡',
+    skills: ['TypeScript', 'Supabase', 'REST APIs', 'Git & GitHub', 'Vercel', 'Netlify'],
+  },
+  {
+    id: 'smm',
+    title: 'Social Media Management',
+    desc: 'Planning content calendars, orchestrating viral reels, managing community engagement, and driving digital reach.',
+    tag: 'ENGAGEMENT',
+    icon: '📱',
+    skills: ['Social Media Management', 'Content Strategy', 'Reels & Stories', 'Audience Growth', 'Community Engagement'],
+  },
+  {
+    id: 'marketing',
+    title: 'Marketing & SEO Strategy',
+    desc: 'Data-backed search engine optimization, local discovery on Google, and performance campaign scaling.',
+    tag: 'GROWTH',
     icon: '📈',
-    skills: [
-      'Content Strategy',
-      'Campaign Planning',
-      'Social Media Management',
-      'Content Creation',
-      'Audience Analytics',
-      'Off-Page SEO',
-      'Local SEO',
-      'Brand Identity',
-    ],
+    skills: ['Off-Page SEO', 'Local SEO', 'Audience Analytics', 'Campaign Planning', 'Google Business Profile'],
   },
   {
-    title: 'Tools & Creative Suite',
+    id: 'creative',
+    title: 'Creative Design & Branding',
+    desc: 'Visual storytelling, brand identity creation, marketing collateral, and captivating social media creatives.',
+    tag: 'CREATIVE',
+    icon: '🎨',
+    skills: ['Canva Pro', 'Brand Identity', 'Meta Business Suite', 'Visual Storytelling', 'Copywriting'],
+  },
+  {
+    id: 'tools',
+    title: 'Tools & Modern Workflow',
+    desc: 'Harnessing modern developer productivity software, e-commerce storefronts, and cutting-edge AI utilities.',
+    tag: 'PRODUCTIVITY',
     icon: '✨',
-    skills: [
-      'Canva Pro',
-      'Meta Business Suite',
-      'Google Business Profile',
-      'Shopify',
-      'Vercel',
-      'Netlify',
-      'VS Code',
-      'GitHub',
-      'ChatGPT / AI Tools',
-    ],
+    skills: ['VS Code', 'GitHub', 'Shopify', 'ChatGPT / AI Tools', 'Postman', 'Figma Basics'],
   },
 ];
 
@@ -292,6 +327,7 @@ export const certificationsList: Certification[] = [
     title: 'Cyber Security & Ethical Hacking',
     issuer: 'BECIL',
     year: '2024',
+    badge: 'SECURITY CREDENTIAL',
     description:
       'Learned cybersecurity fundamentals, ethical hacking concepts and online safety practices.',
     image: '/images/cyber-security.jpg',
@@ -301,6 +337,7 @@ export const certificationsList: Certification[] = [
     title: 'Web Development Training',
     issuer: 'Infotact Solutions',
     year: '2025',
+    badge: 'TECHNICAL TRAINING',
     description:
       'Completed practical training focused on modern front-end development and responsive websites.',
     image: '/images/infotact-training.jpg',
@@ -310,6 +347,7 @@ export const certificationsList: Certification[] = [
     title: 'Social Media Management',
     issuer: 'Kashuti',
     year: '2024',
+    badge: 'HONORABLE RECOGNITION',
     description:
       'Recognized for managing social media presence and improving online engagement creatively.',
     image: '/images/kashuti-socialmedia.jpg',
@@ -319,6 +357,7 @@ export const certificationsList: Certification[] = [
     title: 'HR Workshop',
     issuer: 'Bajaj Finserv',
     year: '2024',
+    badge: 'EXECUTIVE WORKSHOP',
     description:
       'Participated in an HR workshop under Banking, Finance & Insurance program.',
     image: '/images/bajaj-workshop.jpg',
@@ -328,6 +367,7 @@ export const certificationsList: Certification[] = [
     title: 'Design Challenge (2nd Position)',
     issuer: 'CodeNerds SWPG',
     year: '2025',
+    badge: '2ND POSITION AWARD',
     description:
       'Secured 2nd position in a creative design challenge showcasing innovative visual thinking and creativity.',
     image: '/images/design-challenge.jpg',

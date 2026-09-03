@@ -1,116 +1,96 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
-import { motion, useSpring } from 'framer-motion';
+import { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
 
-export function CustomCursor() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isClicking, setIsClicking] = useState(false);
-
-  const cursorX = useSpring(0, { stiffness: 600, damping: 30 });
-  const cursorY = useSpring(0, { stiffness: 600, damping: 30 });
-  const glowX = useSpring(0, { stiffness: 200, damping: 25 });
-  const glowY = useSpring(0, { stiffness: 200, damping: 25 });
+const CustomCursor = () => {
+  const dotRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
+  const spotlightRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Disable on touch devices
-    if (window.matchMedia('(pointer: coarse)').matches) {
+    // Only run on non-touch devices
+    if (typeof window === 'undefined' || window.matchMedia('(pointer: coarse)').matches) {
       return;
     }
 
-    const onMouseMove = (e: MouseEvent) => {
-      setIsVisible(true);
-      cursorX.set(e.clientX);
-      cursorY.set(e.clientY);
-      glowX.set(e.clientX);
-      glowY.set(e.clientY);
-    };
+    const dot = dotRef.current;
+    const ring = ringRef.current;
+    const spotlight = spotlightRef.current;
 
-    const onMouseDown = () => setIsClicking(true);
-    const onMouseUp = () => setIsClicking(false);
-    const onMouseLeave = () => setIsVisible(false);
-    const onMouseEnter = () => setIsVisible(true);
+    if (!dot || !ring) return;
 
-    const handleHoverStart = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (
-        target.closest('a') ||
-        target.closest('button') ||
-        target.closest('.interactive') ||
-        target.closest('.glass-card') ||
-        target.closest('input') ||
-        target.closest('textarea')
-      ) {
-        setIsHovered(true);
-      } else {
-        setIsHovered(false);
+    gsap.set([dot, ring], { scale: 0.5, opacity: 0, transformOrigin: '50% 50%' });
+
+    const xToDot = gsap.quickTo(dot, 'x', { duration: 0.05, ease: 'power2.out' });
+    const yToDot = gsap.quickTo(dot, 'y', { duration: 0.05, ease: 'power2.out' });
+
+    const xToRing = gsap.quickTo(ring, 'x', { duration: 0.15, ease: 'power3.out' });
+    const yToRing = gsap.quickTo(ring, 'y', { duration: 0.15, ease: 'power3.out' });
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const x = e.clientX;
+      const y = e.clientY;
+
+      const dotSize = 12;
+      const ringSize = 48;
+
+      xToDot(x - dotSize / 2);
+      yToDot(y - dotSize / 2);
+      xToRing(x - ringSize / 2);
+      yToRing(y - ringSize / 2);
+
+      if (spotlight) {
+        spotlight.style.transform = `translate3d(${x - 350}px, ${y - 350}px, 0)`;
       }
     };
 
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mousemove', handleHoverStart);
-    window.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mouseup', onMouseUp);
-    document.addEventListener('mouseleave', onMouseLeave);
-    document.addEventListener('mouseenter', onMouseEnter);
+    const handleMouseEnter = () => {
+      gsap.to([dot, ring], { opacity: 1, scale: 1, duration: 0.3, ease: 'power2.out' });
+      if (spotlight) gsap.to(spotlight, { opacity: 1, duration: 0.3 });
+    };
+
+    const handleMouseLeave = () => {
+      gsap.to([dot, ring], { opacity: 0, scale: 0.5, duration: 0.3, ease: 'power2.inOut' });
+      if (spotlight) gsap.to(spotlight, { opacity: 0, duration: 0.3 });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseenter', handleMouseEnter);
+    document.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mousemove', handleHoverStart);
-      window.removeEventListener('mousedown', onMouseDown);
-      window.removeEventListener('mouseup', onMouseUp);
-      document.removeEventListener('mouseleave', onMouseLeave);
-      document.removeEventListener('mouseenter', onMouseEnter);
+      window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseenter', handleMouseEnter);
+      document.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [cursorX, cursorY, glowX, glowY]);
-
-  if (!isVisible) return null;
+  }, []);
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden">
-      {/* Soft Ambient Cursor Halo Glow */}
-      <motion.div
-        className="absolute rounded-full pointer-events-none opacity-40 blur-xl transition-colors duration-300"
+    <div className="hidden md:block pointer-events-none">
+      {/* Global Mouse Follower Spotlight Beam */}
+      <div
+        ref={spotlightRef}
+        className="fixed top-0 left-0 w-[700px] h-[700px] rounded-full pointer-events-none z-[9998] opacity-0 blur-[100px] transition-opacity duration-300 will-change-transform"
         style={{
-          x: glowX,
-          y: glowY,
-          translateX: '-50%',
-          translateY: '-50%',
-          width: isHovered ? 120 : 70,
-          height: isHovered ? 120 : 70,
-          background: 'radial-gradient(circle, rgba(255, 77, 136, 0.4) 0%, rgba(232, 165, 152, 0.2) 60%, transparent 80%)',
+          background:
+            'radial-gradient(circle, rgba(229,9,20,0.2) 0%, rgba(229,9,20,0.06) 45%, transparent 75%)',
         }}
       />
 
-      {/* Outer Magnetic Ring */}
-      <motion.div
-        className="absolute rounded-full border border-rose-400/60 dark:border-rose-400/80 pointer-events-none transition-[width,height,background-color] duration-200"
-        style={{
-          x: cursorX,
-          y: cursorY,
-          translateX: '-50%',
-          translateY: '-50%',
-          width: isHovered ? 48 : isClicking ? 20 : 32,
-          height: isHovered ? 48 : isClicking ? 20 : 32,
-          backgroundColor: isHovered ? 'rgba(255, 77, 136, 0.12)' : 'transparent',
-          boxShadow: isHovered ? '0 0 15px rgba(255, 77, 136, 0.3)' : 'none',
-        }}
+      {/* Global Custom Cursor Dot */}
+      <div
+        ref={dotRef}
+        className="fixed top-0 left-0 z-[9999] pointer-events-none w-3 h-3 bg-red-600 rounded-full shadow-[0_0_15px_#E50914] will-change-transform"
       />
 
-      {/* Center Core Pip */}
-      <motion.div
-        className="absolute rounded-full pointer-events-none bg-rose-500"
-        style={{
-          x: cursorX,
-          y: cursorY,
-          translateX: '-50%',
-          translateY: '-50%',
-          width: isClicking ? 4 : 6,
-          height: isClicking ? 4 : 6,
-          boxShadow: '0 0 8px #ff2e83',
-        }}
+      {/* Global Custom Cursor Ring */}
+      <div
+        ref={ringRef}
+        className="fixed top-0 left-0 z-[9999] pointer-events-none w-12 h-12 border border-red-600/60 rounded-full flex items-center justify-center backdrop-blur-[1px] will-change-transform"
       />
     </div>
   );
-}
+};
+
+export default CustomCursor;
